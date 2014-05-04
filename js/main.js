@@ -2,7 +2,9 @@ $(function () {
   var $table = $('table').dataTable({
     ajax: {
       "url": 'http://component-crawler.herokuapp.com/.json',
-      "dataSrc": "components"
+      "dataSrc": function(json) {
+        return json.components;
+      }
     },
     fnServerData: function (sSource, aoData, fnCallback, oSettings) {
       oSettings.jqXHR = $.ajax({
