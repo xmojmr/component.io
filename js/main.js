@@ -22,7 +22,7 @@ $(document).ready(function() {
           component.github.stargazers_count  || '',
           component.github.watchers_count  || '',
           // component.github.updated_at  || ''
-          Math.floor((now - component.github.updated_at) / milisecondsPerDay)
+          Math.floor((now - Date.parse(component.github.updated_at)) / milisecondsPerDay)
         ]);
       }
       
