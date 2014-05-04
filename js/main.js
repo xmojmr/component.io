@@ -6,12 +6,6 @@ $(function () {
         return json.components;
       }
     },
-    fnServerData: function (sSource, aoData, fnCallback, oSettings) {
-      oSettings.jqXHR = $.ajax({
-        url: sSource,
-        success: fnCallback
-      });
-    },
     aaSorting: [
         [6, 'desc']
     ],
