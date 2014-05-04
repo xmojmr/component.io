@@ -1,6 +1,8 @@
 $(document).ready(function() {
   $.getJSON(
-    'component-crawler.json' /* // 'http://component-crawler.herokuapp.com/.json' */,
+    /* 'component-crawler.json' */
+    'http://component-crawler.herokuapp.com/.json'
+    ,
     null,
     function( json ) {
       var aaData = json.components;
