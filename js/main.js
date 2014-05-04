@@ -4,6 +4,8 @@ $(document).ready(function() {
     null,
     function( json ) {
       var aaData = [];
+      var now = new Date();
+      var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
@@ -19,7 +21,8 @@ $(document).ready(function() {
           component.github.open_issues_count  || '',
           component.github.stargazers_count  || '',
           component.github.watchers_count  || '',
-          component.github.updated_at  || ''
+          // component.github.updated_at  || ''
+          Math.floor((now - component.github.updated_at) / milisecondsPerDay)
         ]);
       }
       
