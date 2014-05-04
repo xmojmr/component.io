@@ -1,7 +1,6 @@
 $(document).ready(function() {
   $.getJSON(
-    'http://component-crawler.herokuapp.com/.json'
-    ,
+    'http://component-crawler.herokuapp.com/.json',
     null,
     function( json ) {
       var aaData = [];
@@ -9,17 +8,17 @@ $(document).ready(function() {
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
         aaData.push([
-          component.name,
-          component.repo,
-          component.version,
-          component.description,
-          component.license,
-          component.keywords.join(" "),
-          component.github.forks,
-          component.github.open_issues_count,
-          component.github.stargazers_count,
-          component.github.watchers_count,
-          component.github.updated_at
+          component.name || '',
+          component.repo || '',
+          component.version || '',
+          component.description || '',
+          component.license || '',
+          (component.keywords || []).join(" "),
+          component.github.forks  || '',
+          component.github.open_issues_count  || '',
+          component.github.stargazers_count  || '',
+          component.github.watchers_count  || '',
+          component.github.updated_at  || ''
         ]);
       }
       
