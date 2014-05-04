@@ -7,9 +7,10 @@ $(document).ready(function() {
       var n = json.components.length;
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
+        var j = component.repo.indexOf('/');
         aaData.push([
-          component.name || '',
-          component.repo || '',
+          component.repo.substr(0, j),
+          component.repo.substr(j + 1),
           component.version || '',
           component.description || '',
           component.license || '',
