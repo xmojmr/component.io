@@ -1,6 +1,9 @@
 $(function () {
   var $table = $('table').dataTable({
-    sAjaxSource: 'http://component-crawler.herokuapp.com/.json',
+    ajax: {
+      "url": 'http://component-crawler.herokuapp.com/.json',
+      "dataSrc": "components"
+    },
     fnServerData: function (sSource, aoData, fnCallback, oSettings) {
       oSettings.jqXHR = $.ajax({
         url: sSource,
