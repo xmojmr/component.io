@@ -1,27 +1,30 @@
 $(document).ready(function() {
   $.getJSON(
-    /* 'component-crawler.json' */
     'http://component-crawler.herokuapp.com/.json'
     ,
     null,
     function( json ) {
-      var aaData = json.components;
+      var aaData = [];
+      var n = json.components.length;
+      for (var i = 0; i < n; i++) {
+        var component = json.components[i];
+        aaData.push([
+          component.name,
+          component.repo,
+          component.version,
+          component.description,
+          component.license,
+          component.keywords.join(" "),
+          component.github.forks,
+          component.github.open_issues_count,
+          component.github.stargazers_count,
+          component.github.watchers_count,
+          component.github.updated_at
+        ]);
+      }
       
       var $table = $('table').dataTable({
         aaData: aaData,
-        columns: [
-          { data: "name" },
-          { data: "repo" },
-          { data: "version" },
-          { data: "description" },
-          { data: "license" },
-          { data: "keywords[,]" },
-          { data: "github.forks" },
-          { data: "github.open_issues_count" },
-          { data: "github.stargazers_count" },
-          { data: "github.watchers_count" },
-          { data: "github.updated_at" }
-        ],
         bLengthChange: false,
         sPaginationType: 'full_numbers',
         iDisplayLength: 21,
