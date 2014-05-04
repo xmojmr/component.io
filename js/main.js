@@ -1,7 +1,7 @@
 $(function () {
   var $table = $('table').dataTable({
     ajax: {
-      "url": 'http://component-crawler.herokuapp.com/.json',
+      "url": 'component-crawler.json', // 'http://component-crawler.herokuapp.com/.json',
       "dataSrc": function(json) {
         return json.components;
       }
