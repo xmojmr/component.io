@@ -9,6 +9,19 @@ $(document).ready(function() {
       
       var $table = $('table').dataTable({
         aaData: aaData,
+        columns: [
+          { data: "name" },
+          { data: "repo" },
+          { data: "version" },
+          { data: "description" },
+          { data: "license" },
+          { data: "keywords[,]" },
+          { data: "github.forks" },
+          { data: "github.open_issues_count" },
+          { data: "github.stargazers_count" },
+          { data: "github.watchers_count" },
+          { data: "github.updated_at" }
+        ],
         bLengthChange: false,
         sPaginationType: 'full_numbers',
         iDisplayLength: 21,
@@ -17,6 +30,9 @@ $(document).ready(function() {
         bDeferRender: true,
         fnRowCallback: function (tr, data) {
           var $c = $(tr).children();
+          // TODO: link           { github.url
+
+          /*
           $c.eq(0).html('<a title="' + data[7] + '" href="https://www.npmjs.org/package/' + data[0] + '" target="_blank">' + data[0] + '</a>');
     
           if (data[1]) {
@@ -28,6 +44,7 @@ $(document).ready(function() {
     
             var author = data[3].split(';');
             $c.eq(3).html('<a href="' + author[0] + '" target="_blank">' + author[1] + '</a>');
+          */
         }
       }).fnSetFilteringDelay(300);
     
