@@ -115,16 +115,16 @@ table {
     text-decoration: underline;
 }
 
-th.sorting:after {
-    content: " ↕";
+th.sorting:before {
+    content: "↕ ";
 }
 
-th.sorting_asc:after {
-    content: " ↓";
+th.sorting_asc:before {
+    content: "↓ ";
 }
 
-th.sorting_desc:after {
-    content: " ↑";
+th.sorting_desc:before {
+    content: "↑ ";
 }
 
 
