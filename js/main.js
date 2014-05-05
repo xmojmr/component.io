@@ -227,13 +227,15 @@ $(document).ready(function() {
           $r.find(SELECTOR_COMPONENT).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '" target="_blank">' + data[COLUMN_COMPONENT] + '</a>');
 
           if (data[COLUMN_ISSUES] != '') {
-            $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
+            $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" class="external" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
           
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
     
-          $r.find(SELECTOR_AUTHOR + ',' + SELECTOR_COMPONENT).attr("title", data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT]);
+          $r.find(SELECTOR_COMPONENT).attr("title", data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT]);
+          $r.find(SELECTOR_COMPONENT).addClass("external");
     
+          $r.find(SELECTOR_AUTHOR).attr("title", data[COLUMN_AUTHOR]);
           // $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
 
           /*
