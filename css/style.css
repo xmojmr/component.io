@@ -158,22 +158,22 @@ td {
 
 /* ----------------------------------- */
 .forks {
-    float: right;
+    text-align: right;
 }
 .issues {
-    float: right;
+    text-align: right;
 }
 .stars {
-    float: right;
+    text-align: right;
 }
 .watchers {
-    float: right;
+    text-align: right;
 }
 .age {
-    float: right;
+    text-align: right;
 }
 .freshness {
-    float: right;
+    text-align: right;
 }
 .description {
     white-space: normal;
