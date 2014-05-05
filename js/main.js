@@ -58,6 +58,10 @@ $(document).ready(function() {
           }
         }
         
+        keywords.sort(function(a,b) {
+          return a.localeCompare(b);
+        });
+        
         for (var k = 0; k < keywords.length; k++) {
           var tag = keywords[k];
           tagWeights[tag] = (tagWeights[tag] || 0) + 1;
