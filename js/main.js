@@ -10,6 +10,17 @@ $(document).ready(function() {
         return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
       };
       
+      // http://stackoverflow.com/a/13371349/2626313
+      var escapeHtml = (function () {
+        var chr = {
+          '"': '&quot;', '&': '&amp;', "'": '&#39;',
+          '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
+        };
+        return function (text) {
+          return text.replace(/[\"&'\/<>]/g, function (a) { return chr[a]; });
+        };
+      }());
+      
       var COLUMN_AUTHOR = 0;
       var COLUMN_COMPONENT = 1;
       var COLUMN_VERSION = 2;
@@ -72,7 +83,7 @@ $(document).ready(function() {
           component.repo.substr(0, j),
           component.repo.substr(j + 1),
           component.version || '',
-          component.description || '',
+          escapeHtml(component.description) || '', // TODO: is the escaping really needed? is this the right place?
           component.license || '',
           keywords,
           component.github.forks  || '',
