@@ -88,7 +88,7 @@ $(document).ready(function() {
         bProcessing: true,
         bAutoWidth: false,
         bDeferRender: true,
-        aoColunns: [
+        aoColumns: [
           //  COLUMN_AUTHOR
           { sClass: CLASS_AUTHOR, sType: 'string', aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT] },
           // COLUMN_COMPONENT
