@@ -117,14 +117,17 @@ table {
 
 th.sorting:before {
     content: "↕ ";
+    white-space: nowrap;
 }
 
 th.sorting_asc:before {
     content: "↓ ";
+    white-space: nowrap;
 }
 
 th.sorting_desc:before {
     content: "↑ ";
+    white-space: nowrap;
 }
 
 
