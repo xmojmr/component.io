@@ -9,6 +9,19 @@ $(document).ready(function() {
         return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
       };
       
+      var COLUMN_AUTHOR = 0;
+      var COLUMN_COMPONENT = 1;
+      var COLUMN_VERSION = 2;
+      var COLUMN_DESCRIPTION = 3;
+      var COLUMN_LICENSE = 4;
+      var COLUMN_TAGS = 5;
+      var COLUMN_FORKS = 6;
+      var COLUMN_ISSUES = 7;
+      var COLUMN_STARS = 8;
+      var COLUMN_WATCHERS = 9;
+      var COLUMN_AGE = 10;
+      var COLUMN_FRESHNESS = 11;
+
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
@@ -41,6 +54,11 @@ $(document).ready(function() {
         bDeferRender: true,
         fnRowCallback: function (tr, data) {
           var $c = $(tr).children();
+          
+          $c.eq(COLUMN_AUTHOR).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '" target="_blank">' + data[COLUMN_AUTHOR] + '</a>');
+
+          $c.eq(COLUMN_COMPONENT).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '" target="_blank">' + data[COLUMN_COMPONENT] + '</a>');
+
           // TODO: link           { github.url
 
           /*
