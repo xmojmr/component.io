@@ -106,6 +106,19 @@ table {
     text-decoration: underline;
 }
 
+th.sorting:after {
+    content: " ↕";
+}
+
+th.sorting_asc:after {
+    content: " ↑";
+}
+
+th.sorting_desc:after {
+    content: " ↓";
+}
+
+
 tr {
     height: 1em;
 }
