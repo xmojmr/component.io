@@ -64,7 +64,7 @@ $(document).ready(function() {
       $('#tags').html(
         tags.map(function(t) {
           return '<span class="tag">' + t.tag + ' (' + t.weight + ')</span>';
-        }).join(" ");
+        }).join(" ")
       );
       
       var $table = $('table').dataTable({
