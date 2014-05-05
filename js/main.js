@@ -124,10 +124,8 @@ $(document).ready(function() {
           if (data[COLUMN_ISSUES] != '') {
             $c.eq(COLUMN_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
-          
-          $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
-
-          // TODO: link           { github.url
+    
+          // $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
 
           /*
           $c.eq(0).html('<a title="' + data[7] + '" href="https://www.npmjs.org/package/' + data[0] + '" target="_blank">' + data[0] + '</a>');
