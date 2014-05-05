@@ -46,7 +46,7 @@ $(document).ready(function() {
         var keywords = component.keywords || [];
         
         // convert license to tag
-        var licenses = (component.license || '').split('/');
+        var licenses = component.license || [];
         for (var l = 0; l < licenses.length; l++) {
           keywords.push(licenses[l].trim() + "-license");
         }
