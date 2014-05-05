@@ -22,19 +22,28 @@ $(document).ready(function() {
       var COLUMN_AGE = 10;
       var COLUMN_FRESHNESS = 11;
 
+      var tagWeights = {};
+
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
         var j = component.repo.indexOf('/');
+        var keywords = component.keywords || [];
+        
+        for (var k = 0; k < keywords.length; k++) {
+          var tag = keywords[k];
+          tagWeights[tag] = (tagWeights[tag] || 0) + 1;
+        }
+
         aaData.push([
           component.repo.substr(0, j),
           component.repo.substr(j + 1),
           component.version || '',
           component.description || '',
           component.license || '',
-          (component.keywords || []).join(" "),
+          keywords,
           component.github.forks  || '',
           component.github.open_issues_count  || '',
           component.github.stargazers_count  || '',
@@ -43,6 +52,20 @@ $(document).ready(function() {
           Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay)
         ]);
       }
+      
+      var tags = [];
+      for (var tag in Object.keys(tagWeights))
+        tags.push({ tag: tag, weight: tagWeights[tag] });
+        
+      tags.sort(function(a,b) {
+        return a.tag.localeCompare(b.tag);
+      });
+      
+      $('tags').html(
+        tags.map(function(t) {
+          return '<span class="tag">' + t.tag + ' (' + t.weight + ')</span>';
+        }).join(" ");
+      );
       
       var $table = $('table').dataTable({
         aaData: aaData,
