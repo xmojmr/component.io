@@ -13,6 +13,8 @@ th {
     border-color: black;
     border-width: 0 0 1px 0;
     border-style: solid;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 th.sorting_disabled {
