@@ -155,3 +155,26 @@ td {
     border: 0; 
     z-index: 50;
 }
+
+/* ----------------------------------- */
+.forks {
+    float: right;
+}
+.issues {
+    float: right;
+}
+.stars {
+    float: right;
+}
+.watchers {
+    float: right;
+}
+.age {
+    float: right;
+}
+.freshness {
+    float: right;
+}
+.description {
+    white-space: normal;
+}
