@@ -22,6 +22,19 @@ $(document).ready(function() {
       var COLUMN_AGE = 10;
       var COLUMN_FRESHNESS = 11;
 
+      var CLASS_AUTHOR = 'author';
+      var CLASS_COMPONENT = 'component';
+      var CLASS_VERSION = 'version';
+      var CLASS_DESCRIPTION = 'description';
+      var CLASS_LICENSE = 'license';
+      var CLASS_TAGS = 'tags';
+      var CLASS_FORKS = 'forks';
+      var CLASS_ISSUES = 'issues';
+      var CLASS_STARS = 'stars';
+      var CLASS_WATCHERS = 'watchers';
+      var CLASS_AGE = 'age';
+      var CLASS_FRESHNESS = 'freshness';
+
       var tagWeights = {};
 
       var now = getUtcDate(new Date());
@@ -75,6 +88,32 @@ $(document).ready(function() {
         bProcessing: true,
         bAutoWidth: false,
         bDeferRender: true,
+        aoColunns: [
+          //  COLUMN_AUTHOR
+          { sClass: CLASS_AUTHOR, sType: 'string', aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT] },
+          // COLUMN_COMPONENT
+          { sClass: CLASS_COMPONENT, sType: 'string' },
+          // COLUMN_VERSION
+          { sClass: CLASS_VERSION,  sType: 'string' },
+          // COLUMN_DESCRIPTION
+          { sClass: CLASS_DESCRIPTION, sType: 'string', bSortable: false },
+          // COLUMN_LICENSE
+          { sClass: CLASS_LICENSE, sType: 'string' },
+          // COLUMN_TAGS
+          { sClass: CLASS_TAGS, sType: 'string', bSortable: false },
+          // COLUMN_FORKS
+          { sClass: CLASS_FORKS, sType: 'numeric' },
+          // COLUMN_ISSUES
+          { sClass: CLASS_ISSUES, sType: 'numeric' },
+          // COLUMN_STARS
+          { sClass: CLASS_STARS, sType: 'numeric' },
+          // COLUMN_WATCHERS
+          { sClass: CLASS_WATCHERS, sType: 'numeric' },
+          // COLUMN_AGE
+          { sClass: CLASS_AGE, sType: 'numeric' },
+          // COLUMN_FRESHNESS
+          { sClass: CLASS_FRESHNESS, sType: 'numeric' }
+        ],
         fnRowCallback: function (tr, data) {
           var $c = $(tr).children();
           
