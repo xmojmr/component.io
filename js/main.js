@@ -121,44 +121,92 @@ $(document).ready(function() {
         aaData: aaData,
         bLengthChange: false,
         sPaginationType: 'full_numbers',
-        iDisplayLength: 101,
+        iDisplayLength: 100 + 1,
         //lengthChange: true,
         bProcessing: true,
         bAutoWidth: false,
         bDeferRender: true,
+        bAutoWidth: false,
         aoColumns: [
           //  COLUMN_AUTHOR
-          { sClass: SELECTOR_AUTHOR.substr(1), sType: 'string', aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT] },
+          {
+            sClass: SELECTOR_AUTHOR.substr(1),
+            sType: 'string',
+            aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT],
+            sWidth: '10%'
+          },
           // COLUMN_COMPONENT
-          { sClass: SELECTOR_COMPONENT.substr(1), sType: 'string' },
+          {
+            sClass: SELECTOR_COMPONENT.substr(1),
+            sType: 'string',
+            sWidth: '15%'
+          },
           // COLUMN_VERSION
-          { sClass: SELECTOR_VERSION.substr(1),  sType: 'string' },
+          {
+            sClass: SELECTOR_VERSION.substr(1),
+            sType: 'string',
+            sWidth: '10%'
+          },
           // COLUMN_DESCRIPTION
-          { sClass: SELECTOR_DESCRIPTION.substr(1), sType: 'string', bSortable: false },
+          {
+            sClass: SELECTOR_DESCRIPTION.substr(1),
+            sType: 'string',
+            bSortable: false,
+            sWidth: '30%'
+          },
           // COLUMN_LICENSE
-          { sClass: SELECTOR_LICENSE.substr(1), sType: 'string'
+          {
+            sClass: SELECTOR_LICENSE.substr(1),
+            sType: 'string'
             // license is included in the tag column. No need to display it twice
             ,bVisible: false
           },
           // COLUMN_TAGS
-          { sClass: SELECTOR_TAGS.substr(1), sType: 'string', bSortable: false },
+          {
+            sClass: SELECTOR_TAGS.substr(1),
+            sType: 'string',
+            bSortable: false,
+            sWidth: '10%'
+          },
           // COLUMN_FORKS
-          { sClass: SELECTOR_FORKS.substr(1), sType: 'numeric' },
+          {
+            sClass: SELECTOR_FORKS.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
           // COLUMN_ISSUES
-          { sClass: SELECTOR_ISSUES.substr(1), sType: 'numeric' },
+          {
+            sClass: SELECTOR_ISSUES.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
           // COLUMN_STARS
-          { sClass: SELECTOR_STARS.substr(1), sType: 'numeric' },
+          {
+            sClass: SELECTOR_STARS.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
           // COLUMN_WATCHERS
-          { sClass: SELECTOR_WATCHERS.substr(1), sType: 'numeric'
+          {
+            sClass: SELECTOR_WATCHERS.substr(1),
+            sType: 'numeric'
              // TODO: enable once the crawler bug
              // https://github.com/component/crawler.js/issues/5
              // gets fixed
             ,bVisible: false
           },
           // COLUMN_AGE
-          { sClass: SELECTOR_AGE.substr(1), sType: 'numeric' },
+          {
+            sClass: SELECTOR_AGE.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
           // COLUMN_FRESHNESS
-          { sClass: SELECTOR_FRESHNESS.substr(1), sType: 'numeric' }
+          {
+            sClass: SELECTOR_FRESHNESS.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          }
         ],
         fnRowCallback: function (tr, data) {
           var $r = $(tr);
