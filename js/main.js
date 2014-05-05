@@ -27,7 +27,7 @@ $(document).ready(function() {
           component.github.stargazers_count  || '',
           component.github.watchers_count  || '',
           // component.github.updated_at  || ''
-          Math.floor((now - getUtcDate(Date.parse(component.github.updated_at))) / milisecondsPerDay)
+          Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay)
         ]);
       }
       
