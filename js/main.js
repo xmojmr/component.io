@@ -83,7 +83,7 @@ $(document).ready(function() {
           component.repo.substr(0, j),
           component.repo.substr(j + 1),
           component.version || '',
-          escapeHtml(component.description) || '', // TODO: is the escaping really needed? is this the right place?
+          escapeHtml(component.description || ''), // TODO: is the escaping really needed? is this the right place?
           component.license || '',
           keywords,
           component.github.forks  || '',
