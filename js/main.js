@@ -192,6 +192,8 @@ $(document).ready(function() {
           */
         }
       }).fnSetFilteringDelay(300);
+      
+      new $.fn.dataTable.FixedHeader($table);
     
       var $input = $(':input[type=text]').focus();
     
