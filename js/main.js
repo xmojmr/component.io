@@ -48,6 +48,7 @@ $(document).ready(function() {
       var SELECTOR_FRESHNESS = '.freshness';
 
       var tagWeights = {};
+      var maxTagWeight = 0;
 
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
@@ -96,8 +97,12 @@ $(document).ready(function() {
       }
       
       var tags = [];
-      for (var tag in tagWeights)
-        tags.push({ tag: tag, weight: tagWeights[tag] });
+      for (var tag in tagWeights) {
+        var tagWeight = tagWeights[tag];
+        if (tagWeight > maxTagWeight)
+          maxTagWeight = tagWeight;
+        tags.push({ tag: tag, weight: tagWeight });
+      }
         
       tags.sort(function(a,b) {
         return a.tag.localeCompare(b.tag);
@@ -105,7 +110,10 @@ $(document).ready(function() {
       
       $('#tags').html(
         tags.map(function(t) {
-          return '<span class="tag">' + t.tag + ' (' + t.weight + ')</span>';
+          var weight = '';
+          if (t.weight > 1)
+            weight = '&nbsp;x&nbsp;' + t.weight.toString();
+          return '<span class="tag">' + t.tag + '</span>' + weight;
         }).join(" ")
       );
       
