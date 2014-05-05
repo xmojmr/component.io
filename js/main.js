@@ -85,6 +85,8 @@ $(document).ready(function() {
           if (data[COLUMN_ISSUES] != '') {
             $c.eq(COLUMN_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
+          
+          $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
 
           // TODO: link           { github.url
 
