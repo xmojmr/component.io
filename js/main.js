@@ -61,7 +61,7 @@ $(document).ready(function() {
         return a.tag.localeCompare(b.tag);
       });
       
-      $('tags').html(
+      $('#tags').html(
         tags.map(function(t) {
           return '<span class="tag">' + t.tag + ' (' + t.weight + ')</span>';
         }).join(" ");
