@@ -112,7 +112,7 @@ $(document).ready(function() {
         tags.map(function(t) {
           var weight = '';
           if (t.weight > 1)
-            weight = '&nbsp;x&nbsp;' + t.weight.toString();
+            weight = '<span class="tag-count">&nbsp;x&nbsp;' + t.weight.toString() + '</span>';
           return '<span class="tag">' + t.tag + '</span>' + weight;
         }).join(" ")
       );
