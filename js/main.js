@@ -54,7 +54,7 @@ $(document).ready(function() {
       }
       
       var tags = [];
-      for (var tag in Object.keys(tagWeights))
+      for (var tag in tagWeights)
         tags.push({ tag: tag, weight: tagWeights[tag] });
         
       tags.sort(function(a,b) {
