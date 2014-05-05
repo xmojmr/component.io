@@ -235,6 +235,8 @@ $(document).ready(function() {
           }
           
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
+          
+          $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         }
       }).fnSetFilteringDelay(300);
       
