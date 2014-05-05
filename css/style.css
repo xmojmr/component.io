@@ -175,6 +175,9 @@ td {
 .freshness {
     text-align: right;
 }
+.version {
+    text-align: right;
+}
 .description {
     white-space: normal;
 }
