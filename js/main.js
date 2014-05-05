@@ -126,7 +126,6 @@ $(document).ready(function() {
         bProcessing: true,
         bAutoWidth: false,
         bDeferRender: true,
-        bAutoWidth: false,
         aoColumns: [
           //  COLUMN_AUTHOR
           {
