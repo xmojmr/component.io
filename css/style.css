@@ -160,9 +160,11 @@ tr {
     line-height: 20px;
 }
 
+/*
 tr.odd:hover, tr.even:hover {
     background-color: #FFAAAA;
 }
+*/
 
 td {
     overflow: hidden;
