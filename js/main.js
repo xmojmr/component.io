@@ -253,6 +253,10 @@ $(document).ready(function() {
       }).fnSetFilteringDelay(300);
       
       new $.fn.dataTable.FixedHeader($table);
+      
+      // hide loading indicator and show so far hidden elements
+      $('#loading').toggle();
+      $('.invisible').removeClass('.invisible');
     
       var $input = $(':input[type=text]').focus();
     
