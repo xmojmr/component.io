@@ -167,6 +167,10 @@ td {
     white-space: nowrap;
     vertical-align: top;
     border: 1px dashed gray;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 
 .lastUpdate {
