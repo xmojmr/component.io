@@ -191,6 +191,10 @@ td {
 }
 
 /* ----------------------------------- */
+.invisible {
+    display: none;
+}
+
 td.forks {
     text-align: right;
 }
