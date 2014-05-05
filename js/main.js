@@ -256,7 +256,7 @@ $(document).ready(function() {
       
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
-      $('.invisible').removeClass('.invisible');
+      $('.invisible').removeClass('invisible');
     
       var $input = $(':input[type=text]').focus();
     
