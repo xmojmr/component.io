@@ -54,7 +54,7 @@ $(document).ready(function() {
             licenses = component.license.toString().split('/');
             
           for (var l = 0; l < licenses.length; l++) {
-            keywords.push(licenses[l].trim() + "-license");
+            keywords.push('license-' + licenses[l].trim());
           }
         }
         
