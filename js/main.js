@@ -222,7 +222,9 @@ $(document).ready(function() {
         fnRowCallback: function (tr, data) {
           var $r = $(tr);
           
-          $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '" target="_blank">' + data[COLUMN_AUTHOR] + '</a>');
+          var author = data[COLUMN_AUTHOR];
+          
+          $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + author + '" class="external" target="_blank" title="' + author + '">' + author + '</a>');
 
           var repo = data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT];
           
@@ -233,23 +235,6 @@ $(document).ready(function() {
           }
           
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
-    
-          $r.find(SELECTOR_AUTHOR).attr("title", data[COLUMN_AUTHOR]);
-          // $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
-
-          /*
-          $c.eq(0).html('<a title="' + data[7] + '" href="https://www.npmjs.org/package/' + data[0] + '" target="_blank">' + data[0] + '</a>');
-    
-          if (data[1]) {
-            var name = data[1].split('/');
-            $c.eq(1).html('<a href="https://github.com/' + data[1] + '" target="_blank">' + name[name.length - 1] + '</a>');
-          }
-    
-          $c.eq(2).prop('title', data[2]);
-    
-            var author = data[3].split(';');
-            $c.eq(3).html('<a href="' + author[0] + '" target="_blank">' + author[1] + '</a>');
-          */
         }
       }).fnSetFilteringDelay(300);
       
