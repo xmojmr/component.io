@@ -247,4 +247,11 @@ td.component {
     margin-right: 4px;
     color: #999;
 }
-
+.external {
+    background-position: center right;
+    background-repeat: no-repeat;
+    background-image: url(//bits.wikimedia.org/static-1.24wmf2/skins/vector/images/external-link-ltr-icon.png?2014-04-24T13:20:00Z);
+    background-image: -webkit-linear-gradient(transparent,transparent),url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiP…AyLjg4MS0yLjg4MS0xLjg1MS0xLjg1MXoiIGZpbGw9IiNmZmYiLz48L2c+PC9nPjwvc3ZnPg==);
+    background-image: linear-gradient(transparent,transparent),url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiP…AyLjg4MS0yLjg4MS0xLjg1MS0xLjg1MXoiIGZpbGw9IiNmZmYiLz48L2c+PC9nPjwvc3ZnPg==);
+    padding-right: 13px;
+}
