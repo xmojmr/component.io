@@ -215,6 +215,7 @@ td.freshness {
 }
 td.version {
     text-align: right;
+    text-overflow: ellipsis;
 }
 td.description {
     white-space: normal;
