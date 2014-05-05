@@ -165,6 +165,8 @@ $(document).ready(function() {
           
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
     
+          $r.find(SELECTOR_AUTHOR + ' ' + SELECTOR_COMPONENT).attr("title", data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT]);
+    
           // $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
 
           /*
