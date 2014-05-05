@@ -1,3 +1,4 @@
+"use strict";
 $(document).ready(function() {
   $.getJSON(
     'http://component-crawler.herokuapp.com/.json',
@@ -22,18 +23,18 @@ $(document).ready(function() {
       var COLUMN_AGE = 10;
       var COLUMN_FRESHNESS = 11;
 
-      var CLASS_AUTHOR = 'author';
-      var CLASS_COMPONENT = 'component';
-      var CLASS_VERSION = 'version';
-      var CLASS_DESCRIPTION = 'description';
-      var CLASS_LICENSE = 'license';
-      var CLASS_TAGS = 'tags';
-      var CLASS_FORKS = 'forks';
-      var CLASS_ISSUES = 'issues';
-      var CLASS_STARS = 'stars';
-      var CLASS_WATCHERS = 'watchers';
-      var CLASS_AGE = 'age';
-      var CLASS_FRESHNESS = 'freshness';
+      var SELECTOR_AUTHOR = '.author';
+      var SELECTOR_COMPONENT = '.component';
+      var SELECTOR_VERSION = '.version';
+      var SELECTOR_DESCRIPTION = '.description';
+      var SELECTOR_LICENSE = '.license';
+      var SELECTOR_TAGS = '.tags';
+      var SELECTOR_FORKS = '.forks';
+      var SELECTOR_ISSUES = '.issues';
+      var SELECTOR_STARS = '.stars';
+      var SELECTOR_WATCHERS = '.watchers';
+      var SELECTOR_AGE = '.age';
+      var SELECTOR_FRESHNESS = '.freshness';
 
       var tagWeights = {};
 
@@ -107,50 +108,50 @@ $(document).ready(function() {
         bDeferRender: true,
         aoColumns: [
           //  COLUMN_AUTHOR
-          { sClass: CLASS_AUTHOR, sType: 'string', aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT] },
+          { sClass: SELECTOR_AUTHOR.substr(1), sType: 'string', aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT] },
           // COLUMN_COMPONENT
-          { sClass: CLASS_COMPONENT, sType: 'string' },
+          { sClass: SELECTOR_COMPONENT.substr(1), sType: 'string' },
           // COLUMN_VERSION
-          { sClass: CLASS_VERSION,  sType: 'string' },
+          { sClass: SELECTOR_VERSION.substr(1),  sType: 'string' },
           // COLUMN_DESCRIPTION
-          { sClass: CLASS_DESCRIPTION, sType: 'string', bSortable: false },
+          { sClass: SELECTOR_DESCRIPTION.substr(1), sType: 'string', bSortable: false },
           // COLUMN_LICENSE
-          { sClass: CLASS_LICENSE, sType: 'string'
+          { sClass: SELECTOR_LICENSE.substr(1), sType: 'string'
             // license is included in the tag column. No need to display it twice
             ,bVisible: false
           },
           // COLUMN_TAGS
-          { sClass: CLASS_TAGS, sType: 'string', bSortable: false },
+          { sClass: SELECTOR_TAGS.substr(1), sType: 'string', bSortable: false },
           // COLUMN_FORKS
-          { sClass: CLASS_FORKS, sType: 'numeric' },
+          { sClass: SELECTOR_FORKS.substr(1), sType: 'numeric' },
           // COLUMN_ISSUES
-          { sClass: CLASS_ISSUES, sType: 'numeric' },
+          { sClass: SELECTOR_ISSUES.substr(1), sType: 'numeric' },
           // COLUMN_STARS
-          { sClass: CLASS_STARS, sType: 'numeric' },
+          { sClass: SELECTOR_STARS.substr(1), sType: 'numeric' },
           // COLUMN_WATCHERS
-          { sClass: CLASS_WATCHERS, sType: 'numeric'
+          { sClass: SELECTOR_WATCHERS.substr(1), sType: 'numeric'
              // TODO: enable once the crawler bug
              // https://github.com/component/crawler.js/issues/5
              // gets fixed
             ,bVisible: false
           },
           // COLUMN_AGE
-          { sClass: CLASS_AGE, sType: 'numeric' },
+          { sClass: SELECTOR_AGE.substr(1), sType: 'numeric' },
           // COLUMN_FRESHNESS
-          { sClass: CLASS_FRESHNESS, sType: 'numeric' }
+          { sClass: SELECTOR_FRESHNESS.substr(1), sType: 'numeric' }
         ],
         fnRowCallback: function (tr, data) {
-          var $c = $(tr).children();
+          var $r = $(tr);
           
-          $c.eq(COLUMN_AUTHOR).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '" target="_blank">' + data[COLUMN_AUTHOR] + '</a>');
+          $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '" target="_blank">' + data[COLUMN_AUTHOR] + '</a>');
 
-          $c.eq(COLUMN_COMPONENT).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '" target="_blank">' + data[COLUMN_COMPONENT] + '</a>');
+          $r.find(SELECTOR_COMPONENT).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '" target="_blank">' + data[COLUMN_COMPONENT] + '</a>');
 
           if (data[COLUMN_ISSUES] != '') {
-            $c.eq(COLUMN_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
+            $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT] + '/issues" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
           
-          $c.eq(COLUMN_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
+          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
     
           // $c.eq(COLUMN_DESCRIPTION).attr('title', data[COLUMN_DESCRIPTION]);
 
