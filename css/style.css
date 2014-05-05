@@ -144,7 +144,8 @@ tr.odd:hover, tr.even:hover {
 
 td {
     overflow: hidden;
-    white-space: nowrap; 
+    white-space: nowrap;
+    vertical-align: top;
 }
 
 .lastUpdate {
