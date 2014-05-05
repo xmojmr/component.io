@@ -70,6 +70,7 @@ input {
 table {
     width: 100%;
     table-layout: fixed;
+    border-spacing: 0;
 }
 
 .dataTables_paginate {
