@@ -23,16 +23,16 @@ $(document).ready(function() {
       
       var COLUMN_AUTHOR = 0;
       var COLUMN_COMPONENT = 1;
-      var COLUMN_VERSION = 2;
-      var COLUMN_DESCRIPTION = 3;
-      var COLUMN_LICENSE = 4;
-      var COLUMN_TAGS = 5;
-      var COLUMN_FORKS = 6;
-      var COLUMN_ISSUES = 7;
-      var COLUMN_STARS = 8;
-      var COLUMN_WATCHERS = 9;
-      var COLUMN_AGE = 10;
-      var COLUMN_FRESHNESS = 11;
+      var COLUMN_DESCRIPTION = 2;
+      var COLUMN_TAGS = 3;
+      var COLUMN_STARS = 4;
+      var COLUMN_AGE = 5;
+      var COLUMN_ISSUES = 6;
+      var COLUMN_FRESHNESS = 7;
+      var COLUMN_VERSION = 8;
+      var COLUMN_FORKS = 9;
+      var COLUMN_LICENSE = 10;
+      var COLUMN_WATCHERS = 11;
 
       var SELECTOR_AUTHOR = '.author';
       var SELECTOR_COMPONENT = '.component';
@@ -81,18 +81,30 @@ $(document).ready(function() {
         }
 
         aaData.push([
+          //  COLUMN_AUTHOR
           component.repo.substr(0, j),
+          // COLUMN_COMPONENT
           component.repo.substr(j + 1),
-          component.version || '',
+          // COLUMN_DESCRIPTION
           escapeHtml(component.description || ''), // TODO: is the escaping really needed? is this the right place?
-          component.license || '',
+          // COLUMN_TAGS
           keywords,
-          component.github.forks  || '',
-          component.github.open_issues_count  || '',
+          // COLUMN_STARS
           component.github.stargazers_count  || '',
-          component.github.watchers_count  || '',
+          // COLUMN_AGE
           Math.floor((now - getUtcDate(new Date(component.github.created_at))) / milisecondsPerDay),
-          Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay)
+          // COLUMN_ISSUES
+          component.github.open_issues_count  || '',
+          // COLUMN_FRESHNESS
+          Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay),
+          // COLUMN_VERSION
+          component.version || '',
+          // COLUMN_FORKS
+          component.github.forks  || '',
+          // COLUMN_LICENSE
+          component.license || '',
+          // COLUMN_WATCHERS
+          component.github.watchers_count  || ''
         ]);
       }
       
@@ -140,12 +152,6 @@ $(document).ready(function() {
             sType: 'string',
             sWidth: '15%'
           },
-          // COLUMN_VERSION
-          {
-            sClass: SELECTOR_VERSION.substr(1),
-            sType: 'string',
-            sWidth: '10%'
-          },
           // COLUMN_DESCRIPTION
           {
             sClass: SELECTOR_DESCRIPTION.substr(1),
@@ -153,23 +159,22 @@ $(document).ready(function() {
             bSortable: false,
             sWidth: '30%'
           },
-          // COLUMN_LICENSE
-          {
-            sClass: SELECTOR_LICENSE.substr(1),
-            sType: 'string'
-            // license is included in the tag column. No need to display it twice
-            ,bVisible: false
-          },
           // COLUMN_TAGS
           {
             sClass: SELECTOR_TAGS.substr(1),
             sType: 'string',
             bSortable: false,
-            sWidth: '10%'
+            sWidth: '15%'
           },
-          // COLUMN_FORKS
+          // COLUMN_STARS
           {
-            sClass: SELECTOR_FORKS.substr(1),
+            sClass: SELECTOR_STARS.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
+          // COLUMN_AGE
+          {
+            sClass: SELECTOR_AGE.substr(1),
             sType: 'numeric',
             sWidth: '5%'
           },
@@ -179,11 +184,30 @@ $(document).ready(function() {
             sType: 'numeric',
             sWidth: '5%'
           },
-          // COLUMN_STARS
+          // COLUMN_FRESHNESS
           {
-            sClass: SELECTOR_STARS.substr(1),
+            sClass: SELECTOR_FRESHNESS.substr(1),
             sType: 'numeric',
             sWidth: '5%'
+          },
+          // COLUMN_VERSION
+          {
+            sClass: SELECTOR_VERSION.substr(1),
+            sType: 'string',
+            sWidth: '5%'
+          },
+          // COLUMN_FORKS
+          {
+            sClass: SELECTOR_FORKS.substr(1),
+            sType: 'numeric',
+            sWidth: '5%'
+          },
+          // COLUMN_LICENSE
+          {
+            sClass: SELECTOR_LICENSE.substr(1),
+            sType: 'string'
+            // license is included in the tag column. No need to display it twice
+            ,bVisible: false
           },
           // COLUMN_WATCHERS
           {
@@ -193,18 +217,6 @@ $(document).ready(function() {
              // https://github.com/component/crawler.js/issues/5
              // gets fixed
             ,bVisible: false
-          },
-          // COLUMN_AGE
-          {
-            sClass: SELECTOR_AGE.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
-          },
-          // COLUMN_FRESHNESS
-          {
-            sClass: SELECTOR_FRESHNESS.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
           }
         ],
         fnRowCallback: function (tr, data) {
