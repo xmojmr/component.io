@@ -108,7 +108,12 @@ $(document).ready(function() {
           // COLUMN_STARS
           { sClass: CLASS_STARS, sType: 'numeric' },
           // COLUMN_WATCHERS
-          { sClass: CLASS_WATCHERS, sType: 'numeric' },
+          { sClass: CLASS_WATCHERS, sType: 'numeric'
+             // TODO: enable once the crawler bug
+             // https://github.com/component/crawler.js/issues/5
+             // gets fixed
+            ,bVisible: false
+          },
           // COLUMN_AGE
           { sClass: CLASS_AGE, sType: 'numeric' },
           // COLUMN_FRESHNESS
