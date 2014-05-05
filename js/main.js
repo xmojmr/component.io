@@ -4,7 +4,12 @@ $(document).ready(function() {
     null,
     function( json ) {
       var aaData = [];
-      var now = new Date();
+      
+      var getUtcDate = function(d) {
+        return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+      };
+      
+      var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
       for (var i = 0; i < n; i++) {
@@ -22,7 +27,7 @@ $(document).ready(function() {
           component.github.stargazers_count  || '',
           component.github.watchers_count  || '',
           // component.github.updated_at  || ''
-          Math.floor((now - Date.parse(component.github.updated_at)) / milisecondsPerDay)
+          Math.floor((now - getUtcDate(Date.parse(component.github.updated_at))) / milisecondsPerDay)
         ]);
       }
       
