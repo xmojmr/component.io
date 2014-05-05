@@ -26,7 +26,7 @@ $(document).ready(function() {
           component.github.open_issues_count  || '',
           component.github.stargazers_count  || '',
           component.github.watchers_count  || '',
-          // component.github.updated_at  || ''
+          Math.floor((now - getUtcDate(new Date(component.github.created_at))) / milisecondsPerDay),
           Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay)
         ]);
       }
