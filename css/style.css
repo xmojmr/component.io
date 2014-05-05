@@ -161,27 +161,27 @@ td {
 }
 
 /* ----------------------------------- */
-.forks {
+td.forks {
     text-align: right;
 }
-.issues {
+td.issues {
     text-align: right;
 }
-.stars {
+td.stars {
     text-align: right;
 }
-.watchers {
+td.watchers {
     text-align: right;
 }
-.age {
+td.age {
     text-align: right;
 }
-.freshness {
+td.freshness {
     text-align: right;
 }
-.version {
+td.version {
     text-align: right;
 }
-.description {
+td.description {
     white-space: normal;
 }
