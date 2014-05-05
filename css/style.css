@@ -9,6 +9,10 @@ a {
 
 th {
     cursor: pointer;
+    background-color: white;
+    border-color: black;
+    border-width: 0 0 1px 0;
+    border-style: solid;
 }
 
 th.sorting_disabled {
