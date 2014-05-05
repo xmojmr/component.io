@@ -11,6 +11,10 @@ th {
     cursor: pointer;
 }
 
+th.sorting_disabled {
+    cursor: default;
+}
+
 .wrapper {
     background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #AFAFAF;
