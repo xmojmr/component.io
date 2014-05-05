@@ -45,6 +45,12 @@ $(document).ready(function() {
         var j = component.repo.indexOf('/');
         var keywords = component.keywords || [];
         
+        // convert license to tag
+        var licenses = (component.license || '').split('/');
+        for (var l = 0; l < licenses.length; l++) {
+          keywords.push(licenses[l].trim() + "-license");
+        }
+        
         for (var k = 0; k < keywords.length; k++) {
           var tag = keywords[k];
           tagWeights[tag] = (tagWeights[tag] || 0) + 1;
@@ -98,7 +104,10 @@ $(document).ready(function() {
           // COLUMN_DESCRIPTION
           { sClass: CLASS_DESCRIPTION, sType: 'string', bSortable: false },
           // COLUMN_LICENSE
-          { sClass: CLASS_LICENSE, sType: 'string' },
+          { sClass: CLASS_LICENSE, sType: 'string'
+            // license is included in the tag column. No need to display it twice
+            ,bVisible: false
+          },
           // COLUMN_TAGS
           { sClass: CLASS_TAGS, sType: 'string', bSortable: false },
           // COLUMN_FORKS
