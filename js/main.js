@@ -4,7 +4,7 @@ $(document).ready(function() {
     'http://component-crawler.herokuapp.com/.json',
     null,
     function( json ) {
-      var aaData = [];
+      var data = [];
       
       var getUtcDate = function(d) {
         return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
@@ -48,11 +48,12 @@ $(document).ready(function() {
       var SELECTOR_FRESHNESS = '.freshness';
 
       var tagWeights = {};
-      var maxTagWeight = 0;
 
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
+      var maxTagWeight = 0;
+      var minTagWeight = n;
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
         var j = component.repo.indexOf('/');
@@ -80,7 +81,7 @@ $(document).ready(function() {
           tagWeights[tag] = (tagWeights[tag] || 0) + 1;
         }
 
-        aaData.push([
+        data.push([
           //  COLUMN_AUTHOR
           component.repo.substr(0, j),
           // COLUMN_COMPONENT
@@ -113,113 +114,139 @@ $(document).ready(function() {
         var tagWeight = tagWeights[tag];
         if (tagWeight > maxTagWeight)
           maxTagWeight = tagWeight;
+        if (tagWeight < minTagWeight)
+          minTagWeight = tagWeight;
         tags.push({ tag: tag, weight: tagWeight });
       }
-        
+       
+      if (minTagWeight > maxTagWeight)
+        minTagWeight = maxTagWeight;
+ 
       tags.sort(function(a,b) {
         return a.tag.localeCompare(b.tag);
       });
       
-      $('#tags').html(
-        tags.map(function(t) {
-          var weight = '';
-          if (t.weight > 1)
-            weight = '<span class="tag-count">&nbsp;x&nbsp;' + t.weight.toString() + '</span>';
-          return '<span class="tag">' + t.tag + '</span>' + weight;
-        }).join(" ")
-      );
+      var tagSizes = {};
       
-      var $table = $('table').dataTable({
-        aaData: aaData,
-        bLengthChange: false,
-        sPaginationType: 'full_numbers',
-        iDisplayLength: 100 + 1,
-        //lengthChange: true,
-        bProcessing: true,
-        bAutoWidth: false,
-        bDeferRender: true,
-        aoColumns: [
+      // TUNE:
+      var minFontSize = 12;
+      var maxFontSize = 40;
+      
+      var tagHtml = tags.map(
+        function(t) {
+          var fontSize = tagSizes[t.weight];
+          if (fontSize == null) {
+            if (t.weight == minTagWeight)
+              fontSize = minFontSize;
+            else
+              fontSize = ((Math.log(t.weight) / Math.log(maxTagWeight)) * (maxFontSize - minFontSize)) + minFontSize;
+
+            fontSize = ' style="font-size:' + fontSize + 'px;"';
+        
+            tagSizes[t.weight] = fontSize;
+          }
+        
+          var title = '';
+          if (t.weight > 1)
+            title = ' title="x ' + t.weight.toString() + '"';
+          return '<span class="tag"' + fontSize + title + '>' + t.tag + '</span>';
+        }
+      ).join(" ");
+      
+      tagSizes = null;
+      
+      $('#tags').html(tagHtml);
+      
+      var table = $('table').DataTable({
+        data: data,
+        pagingType: 'full_numbers',
+        pageLength: 100,
+        processing: true,
+        autoWidth: false,
+        deferRender: true,
+        columns: [
           //  COLUMN_AUTHOR
           {
-            sClass: SELECTOR_AUTHOR.substr(1),
-            sType: 'string',
-            aDataSort: [COLUMN_AUTHOR, COLUMN_COMPONENT],
-            sWidth: '10%'
+            'className': SELECTOR_AUTHOR.substr(1),
+            'type': 'string',
+            'orderData': [COLUMN_AUTHOR, COLUMN_COMPONENT],
+            'width': '10%'
           },
           // COLUMN_COMPONENT
           {
-            sClass: SELECTOR_COMPONENT.substr(1),
-            sType: 'string',
-            sWidth: '15%'
+            'className': SELECTOR_COMPONENT.substr(1),
+            'type': 'string',
+            'width': '15%'
           },
           // COLUMN_DESCRIPTION
           {
-            sClass: SELECTOR_DESCRIPTION.substr(1),
-            sType: 'string',
-            bSortable: false,
-            sWidth: '30%'
+            'className': SELECTOR_DESCRIPTION.substr(1),
+            'type': 'string',
+            'sortable': false,
+            'width': '30%'
           },
           // COLUMN_TAGS
           {
-            sClass: SELECTOR_TAGS.substr(1),
-            sType: 'string',
-            bSortable: false,
-            sWidth: '15%'
+            'className': SELECTOR_TAGS.substr(1),
+            'type': 'string',
+            'sortable': false,
+            'width': '15%'
           },
           // COLUMN_STARS
           {
-            sClass: SELECTOR_STARS.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
+            'className': SELECTOR_STARS.substr(1),
+            'type': 'numeric',
+            'width': '5%'
           },
           // COLUMN_AGE
           {
-            sClass: SELECTOR_AGE.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
+            'className': SELECTOR_AGE.substr(1),
+            'type': 'numeric',
+            'width': '5%'
           },
           // COLUMN_ISSUES
           {
-            sClass: SELECTOR_ISSUES.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
+            'className': SELECTOR_ISSUES.substr(1),
+            'type': 'numeric',
+            'width': '5%'
           },
           // COLUMN_FRESHNESS
           {
-            sClass: SELECTOR_FRESHNESS.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
+            'className': SELECTOR_FRESHNESS.substr(1),
+            'type': 'numeric',
+            'width': '5%'
           },
           // COLUMN_VERSION
           {
-            sClass: SELECTOR_VERSION.substr(1),
-            sType: 'string',
-            sWidth: '5%'
+            'className': SELECTOR_VERSION.substr(1),
+            'type': 'string',
+            'width': '5%'
           },
           // COLUMN_FORKS
           {
-            sClass: SELECTOR_FORKS.substr(1),
-            sType: 'numeric',
-            sWidth: '5%'
+            'className': SELECTOR_FORKS.substr(1),
+            'type': 'numeric',
+            'width': '5%'
           },
           // COLUMN_LICENSE
           {
-            sClass: SELECTOR_LICENSE.substr(1),
-            sType: 'string'
+            'className': SELECTOR_LICENSE.substr(1),
+            'type': 'string'
             // license is included in the tag column. No need to display it twice
-            ,bVisible: false
+            ,'visible': false
           },
           // COLUMN_WATCHERS
           {
-            sClass: SELECTOR_WATCHERS.substr(1),
-            sType: 'numeric'
+            'className': SELECTOR_WATCHERS.substr(1),
+            'type': 'numeric'
              // TODO: enable once the crawler bug
              // https://github.com/component/crawler.js/issues/5
              // gets fixed
-            ,bVisible: false
+            ,'visible': false
           }
         ],
-        fnRowCallback: function (tr, data) {
+        'order': [COLUMN_FRESHNESS, 'asc'],
+        rowCallback: function (tr, data) {
           var $r = $(tr);
           
           var author = data[COLUMN_AUTHOR];
@@ -237,22 +264,40 @@ $(document).ready(function() {
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
           
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
-        }
-      }).fnSetFilteringDelay(300);
+        },
+        // http://datatables.net/reference/option/dom
+        'dom': '<"filter"f><"top"lip>rt<"bottom"lip>'
+      });
       
-      new $.fn.dataTable.FixedHeader($table);
+      $('.dataTables_filter').append('<label>Tag Search: <input type="text" id="tagFilter"></label>');
+      
+      $('#tagFilter').inputosaurus({
+        autoCompleteSource: tags.map(function(t) { return t.tag; }),
+        activateFinalResult: true,
+        outputDelimiter: ';'
+      });
       
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
       $('.invisible').removeClass('invisible');
+ 
+      // application of fixed header must be done when the table is visible as the fixedHeader uses
+      // $().width() to translated column widths from the table to the fixed header. In invisible mode
+      // jQuery width does not return correct pixel value but rather required percent value
+      new $.fn.dataTable.FixedHeader(table);
+   
+      var $input = $('.dataTables_filter :input[type=search]').focus();
     
-      var $input = $(':input[type=text]').focus();
+      var applyFilter = function(value) {
+        if (value != null) {
+          $input.val(value);
+        }
+        table.search($input.val());
+      };
     
       $input.keyup(function (e) {
         if (e.keyCode === 27) {
-          $table.fnFilter('');
-          $input.val('');
-          $input.click();
+          applyFilter('');
         }
         if (window.location.hash.length > 1) {
           window.History.replaceState({}, '', '#' + $input.val());
@@ -263,11 +308,9 @@ $(document).ready(function() {
       var hash = window.location.hash.slice(1);
       if (hash.length > 0) {
         hash = decodeURIComponent(hash);
-        $input.val(hash);
-        $table.fnFilter($input.val());
+        applyFilter(hash);
       } else {
-        $input.val('');
-        $table.fnFilter('');
+        applyFilter('');
       }
     }
   );
