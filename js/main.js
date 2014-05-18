@@ -277,15 +277,18 @@ $(document).ready(function() {
         outputDelimiter: ';'
       });
       
+      // TODO: application of fixed header must be done when the table is visible as the fixedHeader uses
+      // $().width() to translated column widths from the table to the fixed header. In invisible mode
+      // jQuery width does not return correct pixel value but rather required percent value
+      new $.fn.dataTable.FixedHeader(table, {
+        // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
+        alwaysCloneTop: true
+      });
+   
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
       $('.invisible').removeClass('invisible');
  
-      // application of fixed header must be done when the table is visible as the fixedHeader uses
-      // $().width() to translated column widths from the table to the fixed header. In invisible mode
-      // jQuery width does not return correct pixel value but rather required percent value
-      new $.fn.dataTable.FixedHeader(table);
-   
       var $input = $('.dataTables_filter :input[type=search]').focus();
     
       var applyFilter = function(value) {
