@@ -25,14 +25,15 @@ $(document).ready(function() {
       var COLUMN_COMPONENT = 1;
       var COLUMN_DESCRIPTION = 2;
       var COLUMN_TAGS = 3;
-      var COLUMN_STARS = 4;
-      var COLUMN_AGE = 5;
-      var COLUMN_ISSUES = 6;
-      var COLUMN_FRESHNESS = 7;
-      var COLUMN_VERSION = 8;
-      var COLUMN_FORKS = 9;
-      var COLUMN_LICENSE = 10;
-      var COLUMN_WATCHERS = 11;
+      var COLUMN_TAGS_HASH = 4;
+      var COLUMN_STARS = 5;
+      var COLUMN_AGE = 6;
+      var COLUMN_ISSUES = 7;
+      var COLUMN_FRESHNESS = 8;
+      var COLUMN_VERSION = 9;
+      var COLUMN_FORKS = 10;
+      var COLUMN_LICENSE = 11;
+      var COLUMN_WATCHERS = 12;
 
       var SELECTOR_AUTHOR = '.author';
       var SELECTOR_COMPONENT = '.component';
@@ -40,6 +41,7 @@ $(document).ready(function() {
       var SELECTOR_DESCRIPTION = '.description';
       var SELECTOR_LICENSE = '.license';
       var SELECTOR_TAGS = '.tags';
+      var SELECTOR_TAGS_HASH = '.tags-hash';
       var SELECTOR_FORKS = '.forks';
       var SELECTOR_ISSUES = '.issues';
       var SELECTOR_STARS = '.stars';
@@ -48,6 +50,10 @@ $(document).ready(function() {
       var SELECTOR_FRESHNESS = '.freshness';
 
       var tagWeights = {};
+
+      var tagHash = function (t) {
+        return t.toLowerCase();
+      };
 
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
@@ -81,6 +87,8 @@ $(document).ready(function() {
           tagWeights[tag] = (tagWeights[tag] || 0) + 1;
         }
 
+        var TAG_SEPARATOR = ';'; // TODO: use some distinct character that certainly is not present in the hash code
+
         data.push([
           //  COLUMN_AUTHOR
           component.repo.substr(0, j),
@@ -90,6 +98,8 @@ $(document).ready(function() {
           escapeHtml(component.description || ''), // TODO: is the escaping really needed? is this the right place?
           // COLUMN_TAGS
           keywords,
+          // COLUMN_TAGS_HASH
+          TAG_SEPARATOR + (keywords || []).map(tagHash).join(TAG_SEPARATOR) + TAG_SEPARATOR,
           // COLUMN_STARS
           component.github.stargazers_count  || '',
           // COLUMN_AGE
@@ -132,6 +142,18 @@ $(document).ready(function() {
       var minFontSize = 12;
       var maxFontSize = 40;
       
+      var filteredTagsHashes = {};
+      var filteredTagsArray = [];
+      var filteredTagsHashedArray = [];
+
+      var createTag = function (t, attributes) {
+        var active = '';
+        var hash = tagHash(t);
+        if (filteredTagsHashes[hash])
+          active = ' active';
+        return '<span class="tag' + active + '" onclick="tagClick(this)"' + (attributes || '') + ' data-hash="' + tagHash(t) + '" data-tag="' + t + '">' + escapeHtml(t) + '</span>';
+      };
+
       var tagHtml = tags.map(
         function(t) {
           var fontSize = tagSizes[t.weight];
@@ -149,7 +171,7 @@ $(document).ready(function() {
           var title = '';
           if (t.weight > 1)
             title = ' title="x ' + t.weight.toString() + '"';
-          return '<span class="tag"' + fontSize + title + '>' + t.tag + '</span>';
+          return createTag(t.tag, fontSize + title);
         }
       ).join(" ");
       
@@ -191,6 +213,13 @@ $(document).ready(function() {
             'type': 'string',
             'sortable': false,
             'width': '15%'
+          },
+          // COLUMN_TAGS_HASH
+          {
+            'className': SELECTOR_TAGS_HASH.substr(1),
+            'type': 'string',
+            'sortable': false,
+            'visible': false
           },
           // COLUMN_STARS
           {
@@ -261,7 +290,7 @@ $(document).ready(function() {
             $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + repo + '/issues" class="external" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
           
-          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(function(t) { return '<span class="tag">' + t + '</span>' }).join(" "));
+          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(createTag).join(" "));
           
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         },
@@ -269,33 +298,84 @@ $(document).ready(function() {
         'dom': '<"filter"f><"top"lip>rt<"bottom"lip>'
       });
       
-      $('.dataTables_filter').append('<label>Tag Search: <input type="text" id="tagFilter"></label>');
+      $('.dataTables_filter').append($('#tags-controller'));
       
-      $('#tagFilter').inputosaurus({
-        autoCompleteSource: tags.map(function(t) { return t.tag; }),
-        activateFinalResult: true,
-        outputDelimiter: ';'
-      });
-      
-      // TODO: application of fixed header must be done when the table is visible as the fixedHeader uses
-      // $().width() to translated column widths from the table to the fixed header. In invisible mode
-      // jQuery width does not return correct pixel value but rather required percent value
-      new $.fn.dataTable.FixedHeader(table, {
-        // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
-        alwaysCloneTop: true
-      });
-   
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
       $('.invisible').removeClass('invisible');
- 
+
+      // hide tag clould
+      $("#tags").toggle();
+
+      var fixedHeader;
+
+      window.tagControllerClick = function (visible) {
+        if (visible == null) {
+          $("#tags").toggle();
+        } else if (visible) {
+          $("#tags").show()
+        } else {
+          $("#tags").hide();
+        }
+        // reposition fixed header
+        fixedHeader.fnUpdate();
+      };
+
+      $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (filteredTagsHashedArray.length == 0) {
+          return true;
+        } else {
+          // row is accepted only if it contains ALL tags
+          var hashes = data[COLUMN_TAGS_HASH];
+          for (var i = filteredTagsHashedArray.length - 1; i >= 0; i--) {
+            if (hashes.indexOf(filteredTagsHashedArray[i]) < 0)
+              return false;
+          }
+          return true;
+        }
+      });
+
+      window.tagClick = function (element) {
+        var self = $(element);
+        var hash = self.data('hash');
+        if (filteredTagsHashes[hash]) {
+          delete filteredTagsHashes[hash];
+          $('.tag').filter('[data-hash="' + hash + '"]').removeClass('active');
+          filteredTagsArray = filteredTagsArray.filter(function (t) { return tagHash(t) != hash; });
+        } else {
+          filteredTagsHashes[hash] = true;
+          $('.tag').filter('[data-hash="' + hash + '"]').addClass('active');
+          filteredTagsArray.push(self.data('tag'));
+        }
+
+        // show selected tags to the user
+        filteredTagsArray.sort(function (a, b) {
+          return a.localeCompare(b);
+        });
+        $('#tag-filter').html(filteredTagsArray.map(createTag).join(" "));
+
+        filteredTagsHashedArray = filteredTagsArray.map(function (t) { return TAG_SEPARATOR + tagHash(t) + TAG_SEPARATOR; });
+
+        // hide the cloud selector on tag-select
+        window.tagControllerClick(false);
+
+        // filter the data table
+        table.draw();
+      };
+
+      // build fixed table headers
+      fixedHeader = new $.fn.dataTable.FixedHeader(table, {
+        // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
+        alwaysCloneTop: true
+      });
+
       var $input = $('.dataTables_filter :input[type=search]').focus();
     
       var applyFilter = function(value) {
         if (value != null) {
           $input.val(value);
         }
-        table.search($input.val());
+        table.search($input.val()).draw();
       };
     
       $input.keyup(function (e) {

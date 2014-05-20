@@ -142,6 +142,11 @@ td.component {
     line-height: 1.4;
     white-space: nowrap;
     display: inline-block;
+    cursor: pointer;
+}
+.tag.active {
+    color: black;
+    background-color: #FFCB6F;
 }
 .tag-count {
     font-size: 90%;
