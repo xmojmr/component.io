@@ -5,7 +5,7 @@
         <meta name="description" content="component search tool">
         <meta charset="utf-8">
         <link rel="stylesheet" href="http://cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
-        <link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.css">"
+        <link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.css">
         <link rel="stylesheet" href="css/style.css">
      </head>
     <body>
@@ -45,7 +45,16 @@
                 </table>
             </div>
         </div>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <!-- http://stackoverflow.com/a/22368301/2626313 -->
+        <!--[if lt IE 9]>
+        <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+        <![endif]-->
+        <!--[if gte IE 9]><!-->
+        <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
+        <!--<![endif]-->
+
+        <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.js"></script> -->
         <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.min.js"></script>

@@ -1,5 +1,5 @@
 "use strict";
-$(document).ready(function() {
+$(document).ready(function () {
   $.getJSON(
     'http://component-crawler.herokuapp.com/.json',
     null,
@@ -335,39 +335,43 @@ $(document).ready(function() {
         }
       });
 
-      window.tagClick = function (element) {
-        var self = $(element);
-        var hash = self.data('hash');
-        if (filteredTagsHashes[hash]) {
-          delete filteredTagsHashes[hash];
-          $('.tag').filter('[data-hash="' + hash + '"]').removeClass('active');
-          filteredTagsArray = filteredTagsArray.filter(function (t) { return tagHash(t) != hash; });
-        } else {
-          filteredTagsHashes[hash] = true;
-          $('.tag').filter('[data-hash="' + hash + '"]').addClass('active');
-          filteredTagsArray.push(self.data('tag'));
-        }
-
-        // show selected tags to the user
-        filteredTagsArray.sort(function (a, b) {
-          return a.localeCompare(b);
-        });
-        $('#tag-filter').html(filteredTagsArray.map(createTag).join(" "));
-
-        filteredTagsHashedArray = filteredTagsArray.map(function (t) { return TAG_SEPARATOR + tagHash(t) + TAG_SEPARATOR; });
-
-        // hide the cloud selector on tag-select
-        window.tagControllerClick(false);
-
-        // filter the data table
-        table.draw();
-      };
-
       // build fixed table headers
       fixedHeader = new $.fn.dataTable.FixedHeader(table, {
         // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
         alwaysCloneTop: true
       });
+
+      // inspired by http://stackoverflow.com/a/21350778/2626313
+      var decodeHashParams = function(a) {
+        if (!a) return {};
+        a = a.split('#')[1 /* analyze the part after hash */].split('&');
+        var b = a.length, c = {}, d, k, v;
+        while (b--) {
+          d = a[b].split('=');
+          k = d[0].replace('[]', ''), v = decodeURIComponent(d[1] || '');
+          c[k] ? typeof c[k] === 'string' ? (c[k] = [v, c[k]]) : (c[k].unshift(v)) : c[k] = v;
+        }
+        return c
+      };
+
+      var encodeHashParams = function (params) {
+        var query = [];
+        for (var key in params)
+          if (params.hasOwnProperty(key)) {
+            var value = params[key];
+            if (value instanceof Array) {
+              for (var i = 0; i < value.length; i++)
+                query.push(key + '=' + encodeURIComponent(value[i]));
+            } else {
+              query.push(key + '=' + encodeURIComponent(value));
+            }
+          }
+        if (query.length == 0) {
+          return '';
+        } else {
+          return '#' + query.join('&');
+        }
+      }
 
       var $input = $('.dataTables_filter :input[type=search]').focus();
     
@@ -378,23 +382,68 @@ $(document).ready(function() {
         table.search($input.val()).draw();
       };
     
+      var updateHistory = function () {
+        var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
+        if (window.location.hash != hash) {
+          if (window.location.length > 1) {
+            window.History.replaceState({}, '', hash);
+          }
+          window.location.hash = hash;
+        }
+      };
+
+      var toggleTag = function (tag, hash) {
+        if (hash == null)
+          hash = tagHash(tag);
+
+        if (filteredTagsHashes[hash]) {
+          delete filteredTagsHashes[hash];
+          $('.tag').filter('[data-hash="' + hash + '"]').removeClass('active');
+          filteredTagsArray = filteredTagsArray.filter(function (t) { return tagHash(t) != hash; });
+        } else {
+          filteredTagsHashes[hash] = true;
+          $('.tag').filter('[data-hash="' + hash + '"]').addClass('active');
+          filteredTagsArray.push(tag);
+        }
+
+        // show selected tags to the user
+        filteredTagsArray.sort(function (a, b) {
+          return a.localeCompare(b);
+        });
+        $('#tag-filter').html(filteredTagsArray.map(createTag).join(" "));
+
+        filteredTagsHashedArray = filteredTagsArray.map(function (t) { return TAG_SEPARATOR + tagHash(t) + TAG_SEPARATOR; });
+      };
+
+      window.tagClick = function (element) {
+        var self = $(element);
+
+        toggleTag(self.data('tag'), self.data('hash'));
+
+        // hide the cloud selector on tag-select
+        window.tagControllerClick(false);
+
+        updateHistory();
+
+        // filter the data table
+        table.draw();
+      };
+
       $input.keyup(function (e) {
         if (e.keyCode === 27) {
           applyFilter('');
         }
-        if (window.location.hash.length > 1) {
-          window.History.replaceState({}, '', '#' + $input.val());
-        }
-        window.location.hash = $input.val();
+        updateHistory();
       });
     
-      var hash = window.location.hash.slice(1);
-      if (hash.length > 0) {
-        hash = decodeURIComponent(hash);
-        applyFilter(hash);
-      } else {
-        applyFilter('');
-      }
+      var hash = decodeHashParams(window.location.hash);
+      var tags = hash['t'] || [];
+      if (!(tags instanceof Array))
+        tags = [tags];
+      for (var i = 0; i < tags.length; i++)
+        toggleTag(tags[i]);
+      applyFilter(hash['s'] || '');
+      updateHistory();
     }
   );
 });
