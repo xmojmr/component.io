@@ -355,15 +355,20 @@ $(document).ready(function () {
       };
 
       var encodeHashParams = function (params) {
+        var encode = function (key, value) {
+          return key + '=' + encodeURIComponent(value).replace('+', /%20/g);
+        };
+
         var query = [];
         for (var key in params)
           if (params.hasOwnProperty(key)) {
             var value = params[key];
             if (value instanceof Array) {
               for (var i = 0; i < value.length; i++)
-                query.push(key + '=' + encodeURIComponent(value[i]));
+                query.push(encode(key, value[i]));
             } else {
-              query.push(key + '=' + encodeURIComponent(value));
+              if (value != '')
+                query.push(encode(key, value));
             }
           }
         if (query.length == 0) {
@@ -384,12 +389,10 @@ $(document).ready(function () {
     
       var updateHistory = function () {
         var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
-        if (window.location.hash != hash) {
-          if (window.location.length > 1) {
-            window.History.replaceState({}, '', hash);
-          }
-          window.location.hash = hash;
+        if ((history.location || window.location).hash != hash) {
+          window.history.pushState(null, null, hash || '#');
         }
+        window.location.hash = hash;
       };
 
       var toggleTag = function (tag, hash) {
@@ -436,14 +439,27 @@ $(document).ready(function () {
         updateHistory();
       });
     
-      var hash = decodeHashParams(window.location.hash);
-      var tags = hash['t'] || [];
-      if (!(tags instanceof Array))
-        tags = [tags];
-      for (var i = 0; i < tags.length; i++)
-        toggleTag(tags[i]);
-      applyFilter(hash['s'] || '');
-      updateHistory();
+      var applyState = function () {
+        var hash = decodeHashParams((history.location || window.location).hash);
+        var tags = hash['t'] || [];
+        if (!(tags instanceof Array))
+          tags = [tags];
+
+        // turn-off all previous tag filters
+        while (filteredTagsArray.length > 0)
+          toggleTag(filteredTagsArray[0]);
+
+        for (var i = 0; i < tags.length; i++)
+          toggleTag(tags[i]);
+        applyFilter(hash['s'] || '');
+
+        updateHistory();
+      };
+
+      // hashchange is THE ONLY WTF way how to make history work in IE11 (as far as I have found after several hours of web search after debugging attempts failed. Damn you IE developers)
+      $(window).on('hashchange', applyState);
+
+      applyState();
     }
   );
 });
