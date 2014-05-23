@@ -387,13 +387,29 @@ $(document).ready(function () {
         table.search($input.val()).draw();
       };
     
-      var updateHistory = function () {
-        var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
-        if ((history.location || window.location).hash != hash) {
-          window.history.pushState(null, null, hash || '#');
+      var saveState = function () {
+        var normalized = function(hash) {
+          if (hash == null)
+            return '';
+          if (hash == '' || hash == '#')
+            return '';
+          return hash;
         }
-        window.location.hash = hash;
+        var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
+        if (normalized(window.location.hash) != normalized(hash)) {
+          window.location.hash = normalized(hash);
+          // TODO: would that make any sense?
+          // window.history.pushState(null, null, hash || '#');
+        }
+        if (normalized(hash) != normalized('')) {
+          // TODO: this is attempt to fix IE behavior in local 'file:' mode. Is it really needed?
+          // is this the correct way to 'fix it'?
+          window.location.href = window.location.href;
+        }
       };
+
+      // handle all changes triggered internally or through UI
+      $('table').on('search.dt', saveState);
 
       var toggleTag = function (tag, hash) {
         if (hash == null)
@@ -426,7 +442,7 @@ $(document).ready(function () {
         // hide the cloud selector on tag-select
         window.tagControllerClick(false);
 
-        updateHistory();
+        saveState();
 
         // filter the data table
         table.draw();
@@ -436,11 +452,17 @@ $(document).ready(function () {
         if (e.keyCode === 27) {
           applyFilter('');
         }
-        updateHistory();
+        saveState();
       });
+
+      // capture the 'x' click and other side-effects
+      $input.on('change', saveState);
     
-      var applyState = function () {
-        var hash = decodeHashParams((history.location || window.location).hash);
+      var gotoState = function (stateHash) {
+        if (!(typeof(stateHash) == "string"))
+          stateHash = window.location.hash;
+
+        var hash = decodeHashParams(stateHash);
         var tags = hash['t'] || [];
         if (!(tags instanceof Array))
           tags = [tags];
@@ -453,13 +475,14 @@ $(document).ready(function () {
           toggleTag(tags[i]);
         applyFilter(hash['s'] || '');
 
-        updateHistory();
+        saveState();
       };
 
-      // hashchange is THE ONLY WTF way how to make history work in IE11 (as far as I have found after several hours of web search after debugging attempts failed. Damn you IE developers)
-      $(window).on('hashchange', applyState);
+      // hashchange (HTML4) seems to be the only really cross-browser compatible way how to make
+      // some sort of hash fragment history work. Especially when the local 'file:' mode is needed
+      $(window).on('hashchange', gotoState);
 
-      applyState();
+      gotoState();
     }
   );
 });

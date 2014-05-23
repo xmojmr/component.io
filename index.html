@@ -4,69 +4,63 @@
         <title>component - modular javascript framework - search tool | xmojmr</title>
         <meta name="description" content="component search tool">
         <meta charset="utf-8">
-
-        <!-- WTF
-        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE10">
-        -->
-
         <link rel="stylesheet" href="http://cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
         <link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.css">
         <link rel="stylesheet" href="css/style.css">
      </head>
-    <body>
-        <a href="http://github.com/xmojmr/component.io" target="_blank">
-            <img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/121cd7cbdc3e4855075ea8b558508b91ac463ac2/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png">
-        </a>
-        <div class="wrapper">
-            <div class="content">
-                <div class="npm">
-                    <img src="http://component.io/boot/images/logo.png"><span class="plus">+</span>
-                    <img src="img/github.png">
-                    <span class="plus">=</span><span class="big" style="color:#FF0000">Under construction</span>
-                </div>
-                <img id="loading" src="img/ajax-loader.gif" style="margin-left: auto;margin-right: auto;display: block;">
-                <div id="tags" class="invisible"></div>
-                <div id="tags-controller" class="invisible"><button onclick="tagControllerClick()">Tag filter</button><div id="tag-filter"></div></div>
-                <table class="stripe cell-border order-column invisible">
-                    <thead>
-                        <tr>
-                          <th title="author">author</th>
-                          <th title="component">component</th>
-                          <th title="description">description</th>
-                          <th title="tags">tags</th>
-                          <th title="hash">hash</th>
-                          <th title="stars">stars</th>
-                
-                          <th title="age (days)">age (days)</th>                        
-                          <th title="open issues">open issues</th>
-                          <th title="freshness (days)">freshness (days)</th>                        
-                          <th title="version">version</th>
-                          <th title="forks">forks</th>
-                
-                          <th>license</th>
-                          <th>watchers</th>
-                        </tr>
-                    </thead>
-                </table>
+<body>
+    <a href="http://github.com/xmojmr/component.io" target="_blank">
+        <img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/121cd7cbdc3e4855075ea8b558508b91ac463ac2/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png">
+    </a>
+    <div class="wrapper">
+        <div class="content">
+            <div class="npm">
+                <img src="http://component.io/boot/images/logo.png"><span class="plus">+</span>
+                <img src="img/github.png">
+                <span class="plus">=</span><span class="big" style="color:#FF0000">Under construction</span>
             </div>
+            <img id="loading" src="img/ajax-loader.gif" style="margin-left: auto;margin-right: auto;display: block;">
+            <div id="tags" class="invisible"></div>
+            <div id="tags-controller" class="invisible"><button onclick="tagControllerClick()">Tag filter</button><div id="tag-filter"></div></div>
+            <table class="stripe cell-border order-column invisible">
+                <thead>
+                    <tr>
+                        <th title="author">author</th>
+                        <th title="component">component</th>
+                        <th title="description">description</th>
+                        <th title="tags">tags</th>
+                        <th title="hash">hash</th>
+                        <th title="stars">stars</th>
+
+                        <th title="age (days)">age (days)</th>
+                        <th title="open issues">open issues</th>
+                        <th title="freshness (days)">freshness (days)</th>
+                        <th title="version">version</th>
+                        <th title="forks">forks</th>
+
+                        <th>license</th>
+                        <th>watchers</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
+    </div>
 
-        <!-- http://stackoverflow.com/a/22368301/2626313 -->
-        <!--[if lt IE 9]>
-        <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-        <![endif]-->
-        <!--[if gte IE 9]><!-->
-        <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
-        <!--<![endif]-->
+    <!-- http://stackoverflow.com/a/22368301/2626313 -->
+    <!--[if lt IE 9]>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
+    <!--<![endif]-->
 
-        <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-<!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.js"></script> -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.min.js"></script>
-        <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.js"></script>
-<!--        <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables-fixedheader/2.1.1/dataTables.fixedHeader.js"></script>-->
-        <script src="js/dataTables.fixedHeader.js"></script>
-<!-- TODO: does not seem to help with IE WTF!!!       <script src="js/history.min.js"></script> -->
-        <script src="js/main.js"></script>
-    </body>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.js"></script>
+    <!--         <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/jquery.dataTables.min.js">    </script>
+-->
+    <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/jqueryui/dataTables.jqueryui.js"></script>
+    <!--        <script src="http://cdnjs.cloudflare.com/ajax/libs/datatables-fixedheader/2.1.1/dataTables.fixedHeader.js"></script>-->
+    <script src="js/dataTables.fixedHeader.js"></script>
+    <script src="js/main.js"></script>
+</body>
 </html>
