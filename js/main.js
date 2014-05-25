@@ -342,27 +342,27 @@ $(document).ready(function () {
       });
 
       // inspired by http://stackoverflow.com/a/21350778/2626313
-      var decodeHashParams = function(a) {
-        if (!a) return {};
-        a = a.split('#')[1 /* analyze the part after hash */].split('&');
-        var b = a.length, c = {}, d, k, v;
+      var decodeHashParams = function(hash) {
+        if (!hash) return {};
+        hash = hash.split('#')[1 /* analyze the part after hash */].split('&');
+        var b = hash.length, c = {}, d, k, v;
         while (b--) {
-          d = a[b].split('=');
+          d = hash[b].split('=');
           k = d[0].replace('[]', ''), v = decodeURIComponent(d[1] || '');
           c[k] ? typeof c[k] === 'string' ? (c[k] = [v, c[k]]) : (c[k].unshift(v)) : c[k] = v;
         }
         return c
       };
 
-      var encodeHashParams = function (params) {
+      var encodeHashParams = function (hashParams) {
         var encode = function (key, value) {
           return key + '=' + encodeURIComponent(value).replace('+', /%20/g);
         };
 
         var query = [];
-        for (var key in params)
-          if (params.hasOwnProperty(key)) {
-            var value = params[key];
+        for (var key in hashParams)
+          if (hashParams.hasOwnProperty(key)) {
+            var value = hashParams[key];
             if (value instanceof Array) {
               for (var i = 0; i < value.length; i++)
                 query.push(encode(key, value[i]));
@@ -376,40 +376,79 @@ $(document).ready(function () {
         } else {
           return '#' + query.join('&');
         }
-      }
+      };
+
+      var normalizedHash = function (hash) {
+        if (hash == null)
+          return '';
+        if (hash == '' || hash == '#')
+          return '';
+        return hash;
+      };
+      
+      var hashEquals = function (a, b) {
+        return normalizedHash(a) == normalizedHash(b);
+      };
+
+      var currentStateHash = null;
 
       var $input = $('.dataTables_filter :input[type=search]').focus();
-    
+
+      // reconfigure the input field so that it does not filter/sort/draw the datatable after
+      // every keypress. In an older version of DataTables this function was provided by the
+      // http://www.datatables.net/plug-ins/api/fnSetFilteringDelay
+      // Following code builds upon the old plugin concept. Basically it does 'undo' of the
+      // input field capture code at
+      // https://github.com/DataTables/DataTables/blob/1.10.0/media/js/jquery.dataTables.js#L2664
+      // and reschedules it using a timer for little bit after
+      {
+        var oldTimerId = null;
+
+        // as there is not public jQuery method to inspect the event handlers we're using
+        // peek into the internal jQuery structures as suggested here
+        // http://stackoverflow.com/a/13018025/2626313
+        var oldEventHandler = ($._data($input[0], "events")['keyup'])[0].handler;
+
+        $input.off('keyup.DT search.DT input.DT paste.DT cut.DT').on('keyup.DT search.DT input.DT paste.DT cut.DT', function () {
+          var sender = this;
+          window.clearTimeout(oldTimerId);
+          oldTimerId = window.setTimeout(function () {
+            oldEventHandler.apply(sender);
+            }, 300 /* TODO: TUNE: put here some 'nice' number */
+          );
+        });
+      }
+
       var applyFilter = function(value) {
         if (value != null) {
           $input.val(value);
         }
+
+        // as a side-effect of this call should be the call to saveState()
         table.search($input.val()).draw();
       };
     
       var saveState = function () {
-        var normalized = function(hash) {
-          if (hash == null)
-            return '';
-          if (hash == '' || hash == '#')
-            return '';
-          return hash;
-        }
         var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
-        if (normalized(window.location.hash) != normalized(hash)) {
-          window.location.hash = normalized(hash);
+
+        if (hashEquals(hash, currentStateHash)) {
+          // nothing to do
+          return;
+        }
+
+        if (!hashEquals(window.location.hash, hash)) {
+          window.location.hash = normalizedHash(hash);
           // TODO: would that make any sense?
           // window.history.pushState(null, null, hash || '#');
         }
-        if (normalized(hash) != normalized('')) {
+        if (!hashEquals(hash, '')) {
           // TODO: this is attempt to fix IE behavior in local 'file:' mode. Is it really needed?
           // is this the correct way to 'fix it'?
           window.location.href = window.location.href;
         }
-      };
 
-      // handle all changes triggered internally or through UI
-      $('table').on('search.dt', saveState);
+        currentStateHash = hash;
+      };
 
       var toggleTag = function (tag, hash) {
         if (hash == null)
@@ -448,22 +487,22 @@ $(document).ready(function () {
         table.draw();
       };
 
-      $input.keyup(function (e) {
-        if (e.keyCode === 27) {
-          applyFilter('');
+      // handle all changes triggered internally or through UI
+      // this might be alternatively monitored on the $input element through 'input' and 'keyup' events
+      // http://datatables.net/forums/discussion/21284/how-to-detect-when-filter-field-gets-cleared-by-the-x-button-click
+      $('table').on('search.dt', saveState);
+
+      var gotoState = function (hash) {
+        if (!(typeof(hash) == "string"))
+          hash = window.location.hash;
+
+        if (hashEquals(hash, currentStateHash)) {
+          // nothing to do
+          return;
         }
-        saveState();
-      });
 
-      // capture the 'x' click and other side-effects
-      $input.on('change', saveState);
-    
-      var gotoState = function (stateHash) {
-        if (!(typeof(stateHash) == "string"))
-          stateHash = window.location.hash;
-
-        var hash = decodeHashParams(stateHash);
-        var tags = hash['t'] || [];
+        var hashParams = decodeHashParams(hash);
+        var tags = hashParams['t'] || [];
         if (!(tags instanceof Array))
           tags = [tags];
 
@@ -473,9 +512,8 @@ $(document).ready(function () {
 
         for (var i = 0; i < tags.length; i++)
           toggleTag(tags[i]);
-        applyFilter(hash['s'] || '');
 
-        saveState();
+        applyFilter(hashParams['s'] || '');
       };
 
       // hashchange (HTML4) seems to be the only really cross-browser compatible way how to make
