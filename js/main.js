@@ -49,17 +49,321 @@ $(document).ready(function () {
       var SELECTOR_AGE = '.age';
       var SELECTOR_FRESHNESS = '.freshness';
 
-      var tagWeights = {};
+      var PROPERTY_GRAVATAR = 'g';
 
-      var tagHash = function (t) {
-        return t.toLowerCase();
-      };
+      var DEFAULT_ORDER = [[COLUMN_FRESHNESS, 'asc']];
+
+      var Range = Class({
+        constructor: function (minFontSize, maxFontSize, minValue, maxValue) {
+          this._minFontSize = minFontSize;
+          this._maxFontSize = maxFontSize;
+          this._minValue = minValue;
+          this._maxValue = maxValue;
+        },
+
+        includes: function (w) {
+          return w >= this._minValue && w <= this._maxValue;
+        },
+
+        getSize: function (w) {
+          if (w == this._minValue)
+            return this._minFontSize;
+
+          var weightBase = this._minValue - 1;
+
+          return ((Math.log(w - this._minValue + 1) / Math.log(this._maxValue - this._minValue + 1)) * (this._maxFontSize - this._minFontSize)) + this._minFontSize;
+        }
+      });
+
+      var Cloud = Class({
+        $statics: {
+          hash: function (t) {
+            return t.toLowerCase();
+          },
+
+          SEPARATOR: ';' // TODO: use some distinct character that certainly is not present in the hash code
+        },
+
+        constructor: function (className, htmlJoinOperator) {
+          this._className = className;
+          this._htmlJoinOperator = htmlJoinOperator;
+          this._weights = {};
+          this._counts = {};
+          this._properties = {};
+          this._items = [];
+          this._minWeight = 0;
+          this._maxWeight = 0;
+          this._filteredHashes = {};
+          this._filteredArray = [];
+          this._filteredHashedArray = [];
+        },
+
+        /**
+         * registers key in the cloud. Returns true if the key was
+         * newly added
+         */
+        add: function (key, weight) {
+          var oldWeight = this._weights[key];
+          if (oldWeight == null) {
+            this._weights[key] = weight || 0;
+            this._counts[key] = 1;
+            return true;
+          } else {
+            this._weights[key] = oldWeight + (weight || 0);
+            this._counts[key] = this._counts[key] + 1;
+            return false;
+          }
+        },
+
+        set: function(key, propertyName, propertyValue) {
+          var bag = this._properties[key] || {};
+          if (propertyValue == null)
+            delete bag[propertyName];
+          else
+            bag[propertyName] = propertyValue;
+          this._properties[key] = bag;
+        },
+
+        get: function(key, propertyName) {
+          var bag = this._properties[key];
+          if (bag == null)
+            return null;
+          return bag[propertyName];
+        },
+
+        _sort: function () {
+          this._items = [];
+
+          var minWeight = 100000 /* any 'maxint' */;
+          var maxWeight = -minWeight;
+
+          for (var key in this._weights) {
+            var weight = this._weights[key];
+            var count = this._counts[key];
+            var w = weight + count;
+            if (w > maxWeight)
+              maxWeight = w;
+            if (w < minWeight)
+              minWeight = w;
+            this._items.push({ key: key, weight: weight, count: count });
+          }
+
+          if (minWeight > maxWeight)
+            minWeight = maxWeight;
+
+          this._minWeight = minWeight;
+          this._maxWeight = maxWeight;
+
+          this._items.sort(function (a, b) {
+            return a.key.localeCompare(b.key);
+          });
+        },
+
+        _getText: function (t, size) {
+          return escapeHtml(t);
+        },
+
+        createHtml: function(t, attributes, size) {
+          var active = '';
+          var hash = this.$class.hash(t);
+          if (this._filteredHashes[hash])
+            active = ' active';
+          return '<span class="' + this._className + active + '" onclick="' + this._className + 'Click(this)"' + (attributes || '') + ' data-hash="' + hash + '" data-' + this._className + '="' + t + '">' + this._getText(t, size) + '</span>';
+        },
+
+        createCloudHtml: function (fontSizeRanges) {
+          this._sort();
+
+          var ranges = [];
+          var getRange;
+
+          switch ((fontSizeRanges || [1]).length) {
+            case 1:
+              ranges.push(new Range(
+                fontSizeRanges[0],
+                fontSizeRanges[0],
+                this._minWeight,
+                this._maxWeight
+              ));
+              getRange = function (w) { return ranges[0]; }
+              break;
+
+            case 2:
+              ranges.push(new Range(
+                fontSizeRanges[0],
+                fontSizeRanges[1],
+                this._minWeight,
+                this._maxWeight
+              ));
+              getRange = function (w) { return ranges[0]; }
+              break;
+
+            case 3:
+              ranges.push(new Range(
+                fontSizeRanges[0],
+                fontSizeRanges[1],
+                this._minWeight,
+                0
+              ));
+              ranges.push(new Range(
+                fontSizeRanges[1],
+                fontSizeRanges[2],
+                0,
+                this._maxWeight
+              ));
+              getRange = function (w) {
+                return (ranges[1].includes(w)) ? ranges[1] : ranges[0];
+              }
+              break;
+
+            default:
+              throw Error("Not supported number of ranges");
+          }
+
+          var getRange;
+
+          var fontSizes = {};
+          var fontSizeStyles = {};
+
+          var weightBase = this._minWeight - 1;
+          var logBase = Math.log((this._maxWeight - weightBase) / 10 /* TODO: TUNE: */);
+          var logMax = Math.log(this._maxWeight - weightBase) / logBase;
+
+          return this._items.map(
+            function (t) {
+              var w = t.weight + t.count;
+
+              var fontSize = fontSizes[w];
+              var fontSizeStyle;
+
+              if (fontSize == null) {
+                fontSize = getRange(w).getSize(w);
+
+                fontSizes[w] = fontSize;
+
+                fontSizeStyle = ' style="font-size:' + parseFloat(fontSize.toFixed(3)).toString() + 'em;"';
+                fontSizeStyles[w] = fontSizeStyle;
+              } else {
+                fontSizeStyle = fontSizeStyles[w];
+              }
+
+              var title = '';
+              if (t.weight != 0 && t.weight != t.count) {
+                title = ' title="x ' + t.count.toString() + ' = ' + t.weight.toString() + '"';
+              } else {
+                title = ' title="x ' + t.count.toString() + '"';
+              }
+              return this.createHtml(t.key, fontSizeStyle + title, fontSize);
+            }
+          , this).join(" ");
+        },
+
+        isFilterEmpty: function () {
+          return this._filteredHashedArray.length == 0;
+        },
+
+        isMatch: function (hashes) {
+          // row is accepted only if it contains ALL tags
+          for (var i = this._filteredHashedArray.length - 1; i >= 0; i--) {
+            if (hashes.indexOf(this._filteredHashedArray[i]) < 0)
+              return false;
+          }
+          return true;
+        },
+
+        getFilteredArray: function () {
+          return this._filteredArray;
+        },
+
+        toggle: function (key, hash) {
+          var tagHash = this.$class.hash;
+          var SEPARATOR = this.$class.SEPARATOR;
+
+          if (hash == null)
+            hash = tagHash(key);
+
+          if (this._filteredHashes[hash]) {
+            delete this._filteredHashes[hash];
+            $('.' + this._className).filter('[data-hash="' + hash + '"]').removeClass('active');
+            this._filteredArray = this._filteredArray.filter(function (t) { return tagHash(t) != hash; });
+          } else {
+            this._filteredHashes[hash] = true;
+            $('.' + this._className).filter('[data-hash="' + hash + '"]').addClass('active');
+            this._filteredArray.push(key);
+          }
+
+          // show selected tags to the user
+          this._filteredArray.sort(function (a, b) {
+            return a.localeCompare(b);
+          });
+          $('#' + this._className + '-filter').html(this._filteredArray.map(this.createHtml, this).join(this._htmlJoinOperator));
+
+          this._filteredHashedArray = this._filteredArray.map(function (t) { return SEPARATOR + tagHash(t) + SEPARATOR; });
+        },
+
+        activate: function (filter) {
+          filter = filter || [];
+          if (!(filter instanceof Array))
+            filter = [filter];
+
+          // turn-off all previous tag filters
+          while (this._filteredArray.length > 0)
+            this.toggle(this._filteredArray[0]);
+
+          for (var i = 0; i < filter.length; i++)
+            this.toggle(filter[i]);
+        }
+      });
+
+      var Tags = Class(Cloud, {
+        constructor: function () {
+          Cloud.call(this, 'tag', ' && ');
+        }
+      });
+
+      var tags = new Tags();
+
+      var Avatars = Class(Cloud, {
+        constructor: function () {
+          Cloud.call(this, 'avatar', ' || ');
+        },
+
+        isMatch: function (hashes) {
+          // row is accepted only if it contains ANY of the avatar hashes
+          for (var i = this._filteredHashedArray.length - 1; i >= 0; i--) {
+            if (hashes.indexOf(this._filteredHashedArray[i]) >= 0)
+              return true;
+          }
+          return false;
+        },
+
+        _getText: function (t, size) {
+          return this.createImageHtml(t, size) + this.$class.$superp._getText.call(this, t);
+        },
+
+        createImageHtml: function (key, size) {
+          var gravatar = this.get(key, PROPERTY_GRAVATAR);
+          if (gravatar != null) {
+            if (size == null) {
+              size = "32";
+            } else {
+              // http://pxtoem.com/
+              size = Math.round(size * 16 /* em_to_px */ * 1.2 /* magic scale factor saying how much is image bigger than text of the same importance */).toString();
+            }
+            gravatar = 'http://www.gravatar.com/avatar/' + gravatar + '.png?s=' + size;
+            gravatar = '<img src="' + gravatar + '" width="' + size + '" height="' + size + '" alt="' + key + '">';
+          } else {
+            gravatar = '';
+          }
+          return gravatar;
+        }
+      });
+
+      var avatars = new Avatars();
 
       var now = getUtcDate(new Date());
       var milisecondsPerDay = 24 * 60 * 60 * 1000;
       var n = json.components.length;
-      var maxTagWeight = 0;
-      var minTagWeight = n;
       for (var i = 0; i < n; i++) {
         var component = json.components[i];
         var j = component.repo.indexOf('/');
@@ -83,15 +387,18 @@ $(document).ready(function () {
         });
         
         for (var k = 0; k < keywords.length; k++) {
-          var tag = keywords[k];
-          tagWeights[tag] = (tagWeights[tag] || 0) + 1;
+          tags.add(keywords[k]);
         }
 
-        var TAG_SEPARATOR = ';'; // TODO: use some distinct character that certainly is not present in the hash code
+        var author = component.repo.substr(0, j);
+
+        if (avatars.add(author, (component.github.stargazers_count || 0) - (10 /* one open issue removes 10 stars */ *(component.github.open_issues_count || 0)))) {
+          avatars.set(author, PROPERTY_GRAVATAR, component.github.owner.gravatar_id);
+        };
 
         data.push([
           //  COLUMN_AUTHOR
-          component.repo.substr(0, j),
+          author,
           // COLUMN_COMPONENT
           component.repo.substr(j + 1),
           // COLUMN_DESCRIPTION
@@ -99,7 +406,7 @@ $(document).ready(function () {
           // COLUMN_TAGS
           keywords,
           // COLUMN_TAGS_HASH
-          TAG_SEPARATOR + (keywords || []).map(tagHash).join(TAG_SEPARATOR) + TAG_SEPARATOR,
+          Tags.SEPARATOR + (keywords || []).map(Tags.hash).join(Tags.SEPARATOR) + Tags.SEPARATOR,
           // COLUMN_STARS
           component.github.stargazers_count  || '',
           // COLUMN_AGE
@@ -115,69 +422,13 @@ $(document).ready(function () {
           // COLUMN_LICENSE
           component.license || '',
           // COLUMN_WATCHERS
-          component.github.watchers_count  || ''
+          component.github.watchers_count || ''
         ]);
       }
-      
-      var tags = [];
-      for (var tag in tagWeights) {
-        var tagWeight = tagWeights[tag];
-        if (tagWeight > maxTagWeight)
-          maxTagWeight = tagWeight;
-        if (tagWeight < minTagWeight)
-          minTagWeight = tagWeight;
-        tags.push({ tag: tag, weight: tagWeight });
-      }
-       
-      if (minTagWeight > maxTagWeight)
-        minTagWeight = maxTagWeight;
- 
-      tags.sort(function(a,b) {
-        return a.tag.localeCompare(b.tag);
-      });
-      
-      var tagSizes = {};
-      
-      // TUNE:
-      var minFontSize = 12;
-      var maxFontSize = 40;
-      
-      var filteredTagsHashes = {};
-      var filteredTagsArray = [];
-      var filteredTagsHashedArray = [];
+     
+      $('#tags').html(tags.createCloudHtml([0.8, 2.5]) /* TUNE: font size range */);
 
-      var createTag = function (t, attributes) {
-        var active = '';
-        var hash = tagHash(t);
-        if (filteredTagsHashes[hash])
-          active = ' active';
-        return '<span class="tag' + active + '" onclick="tagClick(this)"' + (attributes || '') + ' data-hash="' + tagHash(t) + '" data-tag="' + t + '">' + escapeHtml(t) + '</span>';
-      };
-
-      var tagHtml = tags.map(
-        function(t) {
-          var fontSize = tagSizes[t.weight];
-          if (fontSize == null) {
-            if (t.weight == minTagWeight)
-              fontSize = minFontSize;
-            else
-              fontSize = ((Math.log(t.weight) / Math.log(maxTagWeight)) * (maxFontSize - minFontSize)) + minFontSize;
-
-            fontSize = ' style="font-size:' + fontSize + 'px;"';
-        
-            tagSizes[t.weight] = fontSize;
-          }
-        
-          var title = '';
-          if (t.weight > 1)
-            title = ' title="x ' + t.weight.toString() + '"';
-          return createTag(t.tag, fontSize + title);
-        }
-      ).join(" ");
-      
-      tagSizes = null;
-      
-      $('#tags').html(tagHtml);
+      $('#avatars').html(avatars.createCloudHtml([0.8, 1, 3]) /* TUNE: font size range */);
       
       var table = $('table').DataTable({
         data: data,
@@ -219,31 +470,38 @@ $(document).ready(function () {
             'className': SELECTOR_TAGS_HASH.substr(1),
             'type': 'string',
             'sortable': false,
-            'visible': false
+            'visible': false,
+            // MUST be true. If set to false this column would not be included in the data passed to custom
+            // search filter
+            'searchable': true
           },
           // COLUMN_STARS
           {
             'className': SELECTOR_STARS.substr(1),
             'type': 'numeric',
-            'width': '5%'
+            'width': '5%',
+            'searchable': false
           },
           // COLUMN_AGE
           {
             'className': SELECTOR_AGE.substr(1),
             'type': 'numeric',
-            'width': '5%'
+            'width': '5%',
+            'searchable': false
           },
           // COLUMN_ISSUES
           {
             'className': SELECTOR_ISSUES.substr(1),
             'type': 'numeric',
-            'width': '5%'
+            'width': '5%',
+            'searchable': false
           },
           // COLUMN_FRESHNESS
           {
             'className': SELECTOR_FRESHNESS.substr(1),
             'type': 'numeric',
-            'width': '5%'
+            'width': '5%',
+            'searchable': false
           },
           // COLUMN_VERSION
           {
@@ -255,14 +513,16 @@ $(document).ready(function () {
           {
             'className': SELECTOR_FORKS.substr(1),
             'type': 'numeric',
-            'width': '5%'
+            'width': '5%',
+            'searchable': false
           },
           // COLUMN_LICENSE
           {
             'className': SELECTOR_LICENSE.substr(1),
             'type': 'string'
             // license is included in the tag column. No need to display it twice
-            ,'visible': false
+            , 'visible': false,
+            'searchable': false
           },
           // COLUMN_WATCHERS
           {
@@ -271,16 +531,17 @@ $(document).ready(function () {
              // TODO: enable once the crawler bug
              // https://github.com/component/crawler.js/issues/5
              // gets fixed
-            ,'visible': false
+            , 'visible': false,
+            'searchable': false
           }
         ],
-        'order': [COLUMN_FRESHNESS, 'asc'],
+        'order': DEFAULT_ORDER,
         rowCallback: function (tr, data) {
           var $r = $(tr);
           
           var author = data[COLUMN_AUTHOR];
           
-          $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + author + '" class="external" target="_blank" title="' + author + '">' + author + '</a>');
+          $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + author + '" class="external" target="_blank" title="' + author + '">' + avatars.createImageHtml(author) + '<span>' + author + '</span></a>');
 
           var repo = data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT];
           
@@ -290,7 +551,7 @@ $(document).ready(function () {
             $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + repo + '/issues" class="external" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
           
-          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(createTag).join(" "));
+          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(tags.createHtml, tags).join(" "));
           
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         },
@@ -299,6 +560,7 @@ $(document).ready(function () {
       });
       
       $('.dataTables_filter').append($('#tags-controller'));
+      $('.dataTables_filter').append($('#avatars-controller'));
       
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
@@ -306,6 +568,7 @@ $(document).ready(function () {
 
       // hide tag clould
       $("#tags").toggle();
+      $("#avatars").toggle();
 
       var fixedHeader;
 
@@ -321,17 +584,31 @@ $(document).ready(function () {
         fixedHeader.fnUpdate();
       };
 
+      window.avatarControllerClick = function (visible) {
+        if (visible == null) {
+          $("#avatars").toggle();
+        } else if (visible) {
+          $("#avatars").show()
+        } else {
+          $("#avatars").hide();
+        }
+        // reposition fixed header
+        fixedHeader.fnUpdate();
+      };
+
       $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-        if (filteredTagsHashedArray.length == 0) {
+        if (tags.isFilterEmpty()) {
           return true;
         } else {
-          // row is accepted only if it contains ALL tags
-          var hashes = data[COLUMN_TAGS_HASH];
-          for (var i = filteredTagsHashedArray.length - 1; i >= 0; i--) {
-            if (hashes.indexOf(filteredTagsHashedArray[i]) < 0)
-              return false;
-          }
+          return tags.isMatch(data[COLUMN_TAGS_HASH]);
+        }
+      });
+
+      $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (avatars.isFilterEmpty()) {
           return true;
+        } else {
+          return avatars.isMatch(Avatars.SEPARATOR + data[COLUMN_AUTHOR] + Avatars.SEPARATOR);
         }
       });
 
@@ -341,66 +618,112 @@ $(document).ready(function () {
         alwaysCloneTop: true
       });
 
-      // inspired by http://stackoverflow.com/a/21350778/2626313
-      var decodeHashParams = function(hash) {
-        if (!hash) return {};
-        hash = hash.split('#')[1 /* analyze the part after hash */].split('&');
-        var b = hash.length, c = {}, d, k, v;
-        while (b--) {
-          d = hash[b].split('=');
-          k = d[0].replace('[]', ''), v = decodeURIComponent(d[1] || '');
-          c[k] ? typeof c[k] === 'string' ? (c[k] = [v, c[k]]) : (c[k].unshift(v)) : c[k] = v;
-        }
-        return c
-      };
+      var HashFragment = Class({
+        $statics: {
+          // inspired by http://stackoverflow.com/a/21350778/2626313
+          decode: function (hash) {
+            if (!hash) return {};
+            hash = hash.split('#')[1 /* analyze the part after hash */].split('&');
+            var b = hash.length, c = {}, d, k, v;
+            while (b--) {
+              d = hash[b].split('=');
+              k = d[0].replace('[]', ''), v = decodeURIComponent(d[1] || '');
+              c[k] ? typeof c[k] === 'string' ? (c[k] = [v, c[k]]) : (c[k].unshift(v)) : c[k] = v;
+            }
+            return c
+          },
 
-      var encodeHashParams = function (hashParams) {
-        var encode = function (key, value) {
-          return key + '=' + encodeURIComponent(value).replace('+', /%20/g);
-        };
+          encode: function (hashParams) {
+            var encode = function (key, value) {
+              return key + '=' + encodeURIComponent(value).replace('+', /%20/g);
+            };
 
-        var query = [];
-        for (var key in hashParams)
-          if (hashParams.hasOwnProperty(key)) {
-            var value = hashParams[key];
-            if (value instanceof Array) {
-              for (var i = 0; i < value.length; i++)
-                query.push(encode(key, value[i]));
+            var query = [];
+            for (var key in hashParams)
+              if (hashParams.hasOwnProperty(key)) {
+                var value = hashParams[key];
+                if (value instanceof Array) {
+                  for (var i = 0; i < value.length; i++)
+                    query.push(encode(key, value[i]));
+                } else {
+                  if (value != '')
+                    query.push(encode(key, value));
+                }
+              }
+            if (query.length == 0) {
+              return '';
             } else {
-              if (value != '')
-                query.push(encode(key, value));
+              return '#' + query.join('&');
+            }
+          },
+
+          normalize: function (hash) {
+            if (hash == null)
+              return '';
+            if (hash == '' || hash == '#')
+              return '';
+            return hash;
+          },
+
+          equals: function (a, b) {
+            return HashFragment.normalize(a) == HashFragment.normalize(b);
+          }
+        }
+      });
+
+      var OrderHashFragment = Class({
+        constructor: function(table) {
+          this._table = table;
+        },
+
+        _getColumnNames: function() {
+          var result = [];
+          var tableColumns = this._table.settings()[0].aoColumns;
+          for (var i = 0; i < tableColumns.length; i++) {
+            var column = tableColumns[i];
+            result[i] = column.className;
+          }
+          return result;
+        },
+
+        decode: function (hash) {
+          var params = hash.split(',').map(function (t) { return t.trim(); }).filter(function (t) { return t != ''; });
+          var result = [];
+          for (var i = 0; i < params.length; i++) {
+            var param = params[i].split(' ');
+            var columnName = param[0];
+            var columnIndex = this._getColumnNames().indexOf(columnName);
+            if (columnIndex >= 0) {
+              result.push([columnIndex, param[1]]);
             }
           }
-        if (query.length == 0) {
-          return '';
-        } else {
-          return '#' + query.join('&');
-        }
-      };
+          return result;
+        },
 
-      var normalizedHash = function (hash) {
-        if (hash == null)
-          return '';
-        if (hash == '' || hash == '#')
-          return '';
-        return hash;
-      };
-      
-      var hashEquals = function (a, b) {
-        return normalizedHash(a) == normalizedHash(b);
-      };
+        encode: function (orderParam) {
+          var result = [];
+          var columnNames = this._getColumnNames();
+          for (var i = 0; i < orderParam.length; i++) {
+            result.push(columnNames[orderParam[i][0]] + ' ' + orderParam[i][1]);
+          }
+          return result.join(',');
+        }
+      });
+
+      var orderHashFragment = new OrderHashFragment(table);
 
       var currentStateHash = null;
 
       var $input = $('.dataTables_filter :input[type=search]').focus();
 
       // reconfigure the input field so that it does not filter/sort/draw the datatable after
-      // every keypress. In an older version of DataTables this function was provided by the
+      // every keypress. Exactly same function is provided by DataTables plugin
       // http://www.datatables.net/plug-ins/api/fnSetFilteringDelay
-      // Following code builds upon the old plugin concept. Basically it does 'undo' of the
+      // Following code builds upon the plugin concept. Basically it does 'undo' of the
       // input field capture code at
       // https://github.com/DataTables/DataTables/blob/1.10.0/media/js/jquery.dataTables.js#L2664
-      // and reschedules it using a timer for little bit after
+      // and reschedules it using a timer for little bit after and adds a temporary '.busy' css
+      // decorator to the search field
       {
         var oldTimerId = null;
 
@@ -411,8 +734,10 @@ $(document).ready(function () {
 
         $input.off('keyup.DT search.DT input.DT paste.DT cut.DT').on('keyup.DT search.DT input.DT paste.DT cut.DT', function () {
           var sender = this;
+          $(sender).addClass('busy');
           window.clearTimeout(oldTimerId);
           oldTimerId = window.setTimeout(function () {
+            $(sender).removeClass('busy');
             oldEventHandler.apply(sender);
             }, 300 /* TODO: TUNE: put here some 'nice' number */
           );
@@ -429,19 +754,25 @@ $(document).ready(function () {
       };
     
       var saveState = function () {
-        var hash = encodeHashParams({ 's': $input.val(), 't': filteredTagsArray });
+        var orderParam = orderHashFragment.encode(table.order());
 
-        if (hashEquals(hash, currentStateHash)) {
+        // default order will not be saved in the hash fragment
+        if (orderParam == orderHashFragment.encode(DEFAULT_ORDER))
+          orderParam = '';
+
+        var hash = HashFragment.encode({ 's': $input.val(), 't': tags.getFilteredArray(), 'a': avatars.getFilteredArray(), 'o': orderParam });
+
+        if (HashFragment.equals(hash, currentStateHash)) {
           // nothing to do
           return;
         }
 
-        if (!hashEquals(window.location.hash, hash)) {
-          window.location.hash = normalizedHash(hash);
+        if (!HashFragment.equals(window.location.hash, hash)) {
+          window.location.hash = HashFragment.normalize(hash);
           // TODO: would that make any sense?
           // window.history.pushState(null, null, hash || '#');
         }
-        if (!hashEquals(hash, '')) {
+        if (!HashFragment.equals(hash, '')) {
           // TODO: this is attempt to fix IE behavior in local 'file:' mode. Is it really needed?
           // is this the correct way to 'fix it'?
           window.location.href = window.location.href;
@@ -450,36 +781,27 @@ $(document).ready(function () {
         currentStateHash = hash;
       };
 
-      var toggleTag = function (tag, hash) {
-        if (hash == null)
-          hash = tagHash(tag);
-
-        if (filteredTagsHashes[hash]) {
-          delete filteredTagsHashes[hash];
-          $('.tag').filter('[data-hash="' + hash + '"]').removeClass('active');
-          filteredTagsArray = filteredTagsArray.filter(function (t) { return tagHash(t) != hash; });
-        } else {
-          filteredTagsHashes[hash] = true;
-          $('.tag').filter('[data-hash="' + hash + '"]').addClass('active');
-          filteredTagsArray.push(tag);
-        }
-
-        // show selected tags to the user
-        filteredTagsArray.sort(function (a, b) {
-          return a.localeCompare(b);
-        });
-        $('#tag-filter').html(filteredTagsArray.map(createTag).join(" "));
-
-        filteredTagsHashedArray = filteredTagsArray.map(function (t) { return TAG_SEPARATOR + tagHash(t) + TAG_SEPARATOR; });
-      };
-
       window.tagClick = function (element) {
         var self = $(element);
 
-        toggleTag(self.data('tag'), self.data('hash'));
+        tags.toggle(self.data('tag'), self.data('hash'));
 
         // hide the cloud selector on tag-select
         window.tagControllerClick(false);
+
+        saveState();
+
+        // filter the data table
+        table.draw();
+      };
+
+      window.avatarClick = function (element) {
+        var self = $(element);
+
+        avatars.toggle(self.data('avatar'), self.data('hash'));
+
+        // hide the cloud selector on tag-select
+        window.avatarControllerClick(false);
 
         saveState();
 
@@ -496,23 +818,20 @@ $(document).ready(function () {
         if (!(typeof(hash) == "string"))
           hash = window.location.hash;
 
-        if (hashEquals(hash, currentStateHash)) {
+        if (HashFragment.equals(hash, currentStateHash)) {
           // nothing to do
           return;
         }
 
-        var hashParams = decodeHashParams(hash);
-        var tags = hashParams['t'] || [];
-        if (!(tags instanceof Array))
-          tags = [tags];
+        var hashParams = HashFragment.decode(hash);
 
-        // turn-off all previous tag filters
-        while (filteredTagsArray.length > 0)
-          toggleTag(filteredTagsArray[0]);
-
-        for (var i = 0; i < tags.length; i++)
-          toggleTag(tags[i]);
-
+        tags.activate(hashParams['t']);
+        avatars.activate(hashParams['a']);
+        var orderParam = hashParams['o'] || '';
+        if (orderParam == '')
+          table.order(DEFAULT_ORDER);
+        else
+          table.order(orderHashFragment.decode(orderParam));
         applyFilter(hashParams['s'] || '');
       };
 

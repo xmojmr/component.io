@@ -125,7 +125,13 @@ td.tags {
     white-space: normal;
 }
 td.author {
+}
+td.author span {
     text-overflow: ellipsis;
+    vertical-align: top;
+}
+td.author img {
+    margin-right: 2px;
 }
 td.component {
     text-overflow: ellipsis;
@@ -143,6 +149,7 @@ td.component {
     white-space: nowrap;
     display: inline-block;
     cursor: pointer;
+    vertical-align: middle;
 }
 .tag.active {
     color: black;
@@ -154,10 +161,63 @@ td.component {
     margin-right: 4px;
     color: #999;
 }
+.avatar {
+    color: #3E6D8E;
+    background-color: #E0EAF1;
+    border-bottom: 1px solid #B3CEE1;
+    border-right: 1px solid #B3CEE1;
+    padding: 3px 4px;
+    margin: 2px 2px 2px 0px;
+    text-decoration: none;
+    font-size: 90%;
+    line-height: 1.4;
+    white-space: nowrap;
+    display: inline-block;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+}
+.avatar.active {
+    color: black;
+    background-color: #FFCB6F;
+}
+.avatar-count {
+    font-size: 90%;
+    font-weight: normal;
+    margin-right: 4px;
+    color: #999;
+}
+.avatar img {
+    vertical-align: middle;
+    margin-right: 2px;
+}
 .external {
     background-position: center right;
     background-repeat: no-repeat;
     background-image: url(../img/external_link-26.png);
     padding-right: 1.4em;
     background-size: 1em;
+}
+input.busy {
+    background-color: #fdfdb4;
+}
+.dataTables_wrapper .dataTables_filter {
+    display: flex;
+    float: left;
+}
+.dataTables_wrapper .dataTables_length {
+    float: right;
+}
+#tags {
+    text-align: center;
+}
+#tag-filter {
+    display: inline;
+}
+#avatars {
+    text-align: center;
+}
+#avatar-filter {
+    display: inline;
 }
