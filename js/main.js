@@ -556,7 +556,7 @@ $(document).ready(function () {
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         },
         // http://datatables.net/reference/option/dom
-        'dom': '<"filter"f><"top"lip>rt<"bottom"lip>'
+        'dom': '<"fixed-scroll-header"<"filter"f><"top"lip>>rt'
       });
       
       $('.dataTables_filter').append($('#tags-controller'));
@@ -571,6 +571,7 @@ $(document).ready(function () {
       $("#avatars").toggle();
 
       var fixedHeader;
+      var updateFixedHeader;
 
       window.tagControllerClick = function (visible) {
         if (visible == null) {
@@ -581,7 +582,7 @@ $(document).ready(function () {
           $("#tags").hide();
         }
         // reposition fixed header
-        fixedHeader.fnUpdate();
+        updateFixedHeader();
       };
 
       window.avatarControllerClick = function (visible) {
@@ -593,7 +594,7 @@ $(document).ready(function () {
           $("#avatars").hide();
         }
         // reposition fixed header
-        fixedHeader.fnUpdate();
+        updateFixedHeader();
       };
 
       $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
@@ -612,11 +613,24 @@ $(document).ready(function () {
         }
       });
 
+      /*
       // build fixed table headers
       fixedHeader = new $.fn.dataTable.FixedHeader(table, {
         // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
         alwaysCloneTop: true
       });
+      updateFixedHeader = function() { fixedHeader.fnUpdate(); };
+      */
+      fixedHeader = $('table').stickyTableHeaders({
+        fixedOffset: $('.fixed-scroll-header'),
+            leftOffset: 1 /* TODO: ??? */
+      });
+      updateFixedHeader = function () {
+        $(window).trigger('resize.stickyTableHeaders');
+        $('.fixed-scroll-header').trigger('sticky_kit:recalc');
+        $('.fixed-scroll-header').stick_in_parent();
+      };
+      $('.fixed-scroll-header').stick_in_parent();
 
       var HashFragment = Class({
         $statics: {
@@ -630,7 +644,7 @@ $(document).ready(function () {
               k = d[0].replace('[]', ''), v = decodeURIComponent(d[1] || '');
               c[k] ? typeof c[k] === 'string' ? (c[k] = [v, c[k]]) : (c[k].unshift(v)) : c[k] = v;
             }
-            return c
+            return c;
           },
 
           encode: function (hashParams) {
@@ -672,6 +686,10 @@ $(document).ready(function () {
       });
 
       var OrderHashFragment = Class({
+        $statics: {
+          DEFAULT_SORT_DIRECTION: 'asc'
+        },
+
         constructor: function(table) {
           this._table = table;
         },
@@ -694,7 +712,7 @@ $(document).ready(function () {
             var columnName = param[0];
             var columnIndex = this._getColumnNames().indexOf(columnName);
             if (columnIndex >= 0) {
-              result.push([columnIndex, param[1]]);
+              result.push([columnIndex, param[1] || OrderHashFragment.DEFAULT_SORT_DIRECTION]);
             }
           }
           return result;
@@ -704,7 +722,10 @@ $(document).ready(function () {
           var result = [];
           var columnNames = this._getColumnNames();
           for (var i = 0; i < orderParam.length; i++) {
-            result.push(columnNames[orderParam[i][0]] + ' ' + orderParam[i][1]);
+            var sortDirection = ' ' + orderParam[i][1];
+            if (sortDirection == ' ' +OrderHashFragment.DEFAULT_SORT_DIRECTION)
+              sortDirection = '';
+            result.push(columnNames[orderParam[i][0]] + sortDirection);
           }
           return result.join(',');
         }
@@ -744,13 +765,13 @@ $(document).ready(function () {
         });
       }
 
-      var applyFilter = function(value) {
+      var applyFilter = function(tableApi, value) {
         if (value != null) {
           $input.val(value);
         }
 
         // as a side-effect of this call should be the call to saveState()
-        table.search($input.val()).draw();
+        tableApi.search($input.val()).draw();
       };
     
       var saveState = function () {
@@ -828,11 +849,12 @@ $(document).ready(function () {
         tags.activate(hashParams['t']);
         avatars.activate(hashParams['a']);
         var orderParam = hashParams['o'] || '';
+        var tableApi;
         if (orderParam == '')
-          table.order(DEFAULT_ORDER);
+          tableApi = table.order(DEFAULT_ORDER);
         else
-          table.order(orderHashFragment.decode(orderParam));
-        applyFilter(hashParams['s'] || '');
+          tableApi = table.order(orderHashFragment.decode(orderParam));
+        applyFilter(tableApi, hashParams['s'] || '');
       };
 
       // hashchange (HTML4) seems to be the only really cross-browser compatible way how to make

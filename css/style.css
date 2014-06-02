@@ -2,7 +2,7 @@
     cursor: pointer;
     background-color: white;
     border-color: black;
-    border-width: 0 0 1px 0;
+    border-width: 1px 0 1px 0;
     border-style: solid;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -21,7 +21,9 @@ table {
     table-layout: fixed;
     border-spacing: 0;
     border-collapse: collapse;
-    border: 1px solid black;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: black;
 }
 
 /*
@@ -220,4 +222,11 @@ input.busy {
 }
 #avatar-filter {
     display: inline;
+}
+/* the fixed scrolling header */
+.fixed-scroll-header {
+    /* this is necessary for the jQuery.outerHeight to work. Suggested by http://stackoverflow.com/a/4119825/2626313 */
+    overflow: hidden;
+    background-color: white;
+    z-index: 1;
 }
