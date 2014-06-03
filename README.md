@@ -9,13 +9,17 @@ modified to work with [Component Crawler](https://github.com/component/crawler.j
 
 Go and check <http://xmojmr.github.io/component.io/>
 
-### Current Status (2014-05-25)
+### Current Status (2014-06-02)
 - ok
  - Display of crawler.js database using searchable sortable jQuery DataTables works.
  - Columns author, component and issues are clickable.
  - Tag cloud is calculated correctly (shown on button click)
+ - Author cloud filter (with gravatar images) is available on button click. Projects with many open issues are given less weight
  - Clicking on tags (anywhere on the screen) swithes their include/exclude filtering status
- - Search and tag query generates stateful hash fragments (bookmarkable urls)
+ - Search and sort and tag and author query generates stateful hash fragments (bookmarkable urls)
+ - Search filter is sticked to the top of the screen
 - not ok
  - ugly
- - search filter scrools off the screen
+ - slow initialization
+ - does not work on mobile clients (e.g. Opera Mobile)
+ 
