@@ -1,9 +1,12 @@
 "use strict";
 $(document).ready(function () {
-  $.getJSON(
-    'http://component-crawler.herokuapp.com/.json',
-    null,
-    function( json ) {
+  window.superagent
+    .get('http://component-crawler.herokuapp.com/.json')
+    // TODO: this trick is mentioned at http://stackoverflow.com/a/23682863/2626313 but such a function
+    // does not exist.. ???
+    // .expect(200)
+    .end(function (res) {
+      var json = res.body;
       var data = [];
       
       var getUtcDate = function(d) {

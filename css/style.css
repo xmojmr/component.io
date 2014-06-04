@@ -230,3 +230,7 @@ input.busy {
     background-color: white;
     z-index: 1;
 }
+.fixed-scroll-header.is_stuck {
+    /* hide table's right margin in FireFox. 1px might be enough */
+    padding-right: 2px;
+}
