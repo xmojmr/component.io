@@ -197,7 +197,7 @@ td.component {
 .external {
     background-position: center right;
     background-repeat: no-repeat;
-    background-image: url(../img/external_link-26.png);
+    background-image: url(../resources/external_link-26.png);
     padding-right: 1.4em;
     background-size: 1em;
 }
@@ -233,4 +233,10 @@ input.busy {
 .fixed-scroll-header.is_stuck {
     /* hide table's right margin in FireFox. 1px might be enough */
     padding-right: 2px;
+}
+#error {
+    color: red;
+    text-align: center;
+    font-size: 200%;
+    margin-top: 10px;
 }

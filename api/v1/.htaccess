@@ -1,0 +1,6 @@
+AddOutputFilterByType DEFLATE application/json
+AddType 'application/json; charset=UTF-8' .json
+<filesMatch "^crawler.json$">
+    Header set Cache-Control "public, max-age=3600, must-revalidate"
+    Header unset ETag
+</filesMatch>

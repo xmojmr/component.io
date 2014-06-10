@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} ^(POST)
+RewriteRule ^updates$ _update.php
