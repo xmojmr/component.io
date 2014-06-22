@@ -1,0 +1,3 @@
+---
+---
+{% component "https://github.com/rmm5t/jquery-timeago/blob/v1.4.1/jquery.timeago.js" %}

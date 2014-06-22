@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 $(document).ready(function () {
   var sorry = function (res) {
     var problem = '';
@@ -6,7 +6,7 @@ $(document).ready(function () {
       problem = res.message.toString();
     } else {
       if (res.error) {
-        problem = res.message.toString();
+        problem = res.error.message.toString();
         if (res.status) {
           problem += ", Status: " + res.status.toString();
         }
@@ -16,7 +16,8 @@ $(document).ready(function () {
     $('#loading').hide();
     $('#error').show();
   }
-  window.superagent
+
+  require("superagent")
     // using this link causes CORS problems e.g. with Opera Mobile or Opera for Windows v 12.17
     //.get('http://component-crawler.herokuapp.com/.json')
     .get('/api/v1/crawler.json')
@@ -32,22 +33,12 @@ $(document).ready(function () {
 
       try {
         var json = res.body;
+        var lastModified = new Date(new Date(res.header['last-modified']).setMilliseconds(0));
         var data = [];
       
         var getUtcDate = function(d) {
           return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
         };
-      
-        // http://stackoverflow.com/a/13371349/2626313
-        var escapeHtml = (function () {
-          var chr = {
-            '"': '&quot;', '&': '&amp;', "'": '&#39;',
-            '/': '&#47;',  '<': '&lt;',  '>': '&gt;'
-          };
-          return function (text) {
-            return text.replace(/[\"&'\/<>]/g, function (a) { return chr[a]; });
-          };
-        }());
       
         var COLUMN_AUTHOR = 0;
         var COLUMN_COMPONENT = 1;
@@ -62,6 +53,40 @@ $(document).ready(function () {
         var COLUMN_FORKS = 10;
         var COLUMN_LICENSE = 11;
         var COLUMN_WATCHERS = 12;
+
+        var optimalColumnWidths = [
+          '10%', // COLUMN_AUTHOR
+          '15%', // COLUMN_COMPONENT
+          '30%', // COLUMN_DESCRIPTION
+          '15%', // COLUMN_TAGS
+          null, // COLUMN_TAGS_HASH
+          '5%', // COLUMN_STARS
+          '5%', // COLUMN_AGE
+          '5%', // COLUMN_ISSUES
+          '5%', // COLUMN_FRESHNESS
+          '5%', // COLUMN_VERSION
+          '5%', // COLUMN_FORKS
+          null, // COLUMN_LICENSE
+          null, // COLUMN_WATCHERS
+          null
+        ];
+
+        var smallScreenColumnWidths = [
+          '10%', // COLUMN_AUTHOR
+          '10%', // COLUMN_COMPONENT
+          '20%', // COLUMN_DESCRIPTION
+          '20%', // COLUMN_TAGS
+          null, // COLUMN_TAGS_HASH
+          '10%', // COLUMN_STARS
+          '10%', // COLUMN_AGE
+          '10%', // COLUMN_ISSUES
+          '10%', // COLUMN_FRESHNESS
+          null, // COLUMN_VERSION
+          null, // COLUMN_FORKS
+          null, // COLUMN_LICENSE
+          null, // COLUMN_WATCHERS
+          null
+        ];
 
         var SELECTOR_AUTHOR = '.author';
         var SELECTOR_COMPONENT = '.component';
@@ -80,6 +105,12 @@ $(document).ready(function () {
         var PROPERTY_GRAVATAR = 'g';
 
         var DEFAULT_ORDER = [[COLUMN_FRESHNESS, 'asc']];
+        var DEFAULT_PAGE_LENGTH = 100;
+
+        // TODO: text displayed to user in the meaining of "any value matches"
+        var ANY_VALUE_TEXT = '∀';
+
+        var ANY_VALUE = '<span class="any">' + ANY_VALUE_TEXT + '</span>';
 
         var Range = Class({
           constructor: function (minFontSize, maxFontSize, minValue, maxValue) {
@@ -112,7 +143,7 @@ $(document).ready(function () {
             SEPARATOR: ';' // TODO: use some distinct character that certainly is not present in the hash code
           },
 
-          constructor: function (className, htmlJoinOperator) {
+          constructor: function (className, htmlJoinOperator, fontSizeRanges) {
             this._className = className;
             this._htmlJoinOperator = htmlJoinOperator;
             this._weights = {};
@@ -124,6 +155,9 @@ $(document).ready(function () {
             this._filteredHashes = {};
             this._filteredArray = [];
             this._filteredHashedArray = [];
+            this._cloudHtml = null;
+            this._fontSizeRanges = fontSizeRanges;
+            this._visible = false;
           },
 
           /**
@@ -160,6 +194,10 @@ $(document).ready(function () {
           },
 
           _sort: function () {
+            if (this._items.length > 0)
+              // already sorted
+              return;
+
             this._items = [];
 
             var minWeight = 100000 /* any 'maxint' */;
@@ -199,7 +237,7 @@ $(document).ready(function () {
             return '<span class="' + this._className + active + '" onclick="' + this._className + 'Click(this)"' + (attributes || '') + ' data-hash="' + hash + '" data-' + this._className + '="' + t + '">' + this._getText(t, size) + '</span>';
           },
 
-          createCloudHtml: function (fontSizeRanges) {
+          _createCloudHtml: function (fontSizeRanges) {
             this._sort();
 
             var ranges = [];
@@ -283,7 +321,22 @@ $(document).ready(function () {
                 }
                 return this.createHtml(t.key, fontSizeStyle + title, fontSize);
               }
-            , this).join(" ");
+            , this).join("");
+          },
+
+          createCloudHtml: function() {
+            if (this._cloudHtml == null)
+              this._cloudHtml = this._createCloudHtml(this._fontSizeRanges);
+
+            return this._cloudHtml;
+          },
+
+          getControllerButtonControl: function() {
+            return $('#' + this._className + 's-controller a.ui-button');
+          },
+
+          getCloudControl: function() {
+            return $('#' + this._className + 's');
           },
 
           isFilterEmpty: function () {
@@ -324,9 +377,31 @@ $(document).ready(function () {
             this._filteredArray.sort(function (a, b) {
               return a.localeCompare(b);
             });
-            $('#' + this._className + '-filter').html(this._filteredArray.map(this.createHtml, this).join(this._htmlJoinOperator));
+
+            // Invalidate cloud html cache
+            this._cloudHtml = null;
+
+            this._draw();
 
             this._filteredHashedArray = this._filteredArray.map(function (t) { return SEPARATOR + tagHash(t) + SEPARATOR; });
+          },
+
+          _draw: function() {
+            var container = $('#' + this._className + '-filter');
+
+            switch (this._filteredArray.length) {
+              case 0:
+                container.html(ANY_VALUE);
+                break;
+
+              case 1:
+                container.html(this._filteredArray.map(this.createHtml, this).join(this._htmlJoinOperator));
+                break;
+
+              default:
+                container.html("(" + this._filteredArray.map(this.createHtml, this).join(this._htmlJoinOperator) + ")");
+                break;
+            }
           },
 
           activate: function (filter) {
@@ -340,20 +415,49 @@ $(document).ready(function () {
 
             for (var i = 0; i < filter.length; i++)
               this.toggle(filter[i]);
+          },
+
+          display: function (visible) {
+            if (visible == null)
+              visible = !this._visible;
+
+            if (visible == this._visible)
+              return;
+
+            this._visible = visible;
+
+            if (this._visible) {
+              this.getControllerButtonControl().addClass('ui-state-active');
+
+              modal.open({
+                content: this.createCloudHtml(),
+                width: '95%',
+                height: '95%',
+                onClose: method(this, function () {
+                  this.display(false)
+                })
+              });
+            } else {
+              this.getControllerButtonControl().removeClass('ui-state-active');
+
+              modal.close();
+            }
           }
         });
 
         var Tags = Class(Cloud, {
-          constructor: function () {
-            Cloud.call(this, 'tag', ' && ');
+          constructor: function (fontSizeRanges) {
+            Cloud.call(this, 'tag', ' &#8743; ', fontSizeRanges);
           }
         });
 
-        var tags = new Tags();
+        var tags = new Tags([0.8, 2.5] /* TUNE: font size range */);
 
         var Avatars = Class(Cloud, {
-          constructor: function () {
-            Cloud.call(this, 'avatar', ' || ');
+          constructor: function (fallbackImageSize, fontSizeRanges) {
+            Cloud.call(this, 'avatar', ' &#8744; ', fontSizeRanges);
+            this._fallbackImageSize = fallbackImageSize.toString();
+            this._useImages = true;
           },
 
           isMatch: function (hashes) {
@@ -365,15 +469,25 @@ $(document).ready(function () {
             return false;
           },
 
+          useImages: function(value) {
+            if (this._useImages != value) {
+              this._useImages = value;
+              this._draw();
+            }
+          },
+
           _getText: function (t, size) {
             return this.createImageHtml(t, size) + this.$class.$superp._getText.call(this, t);
           },
 
           createImageHtml: function (key, size) {
+            if (!this._useImages)
+              return '';
+
             var gravatar = this.get(key, PROPERTY_GRAVATAR);
             if (gravatar != null) {
-              if (size == null) {
-                size = "32";
+              if (size == null || isNaN(size)) {
+                size = this._fallbackImageSize;
               } else {
                 // http://pxtoem.com/
                 size = Math.round(size * 16 /* em_to_px */ * 1.2 /* magic scale factor saying how much is image bigger than text of the same importance */).toString();
@@ -384,10 +498,20 @@ $(document).ready(function () {
               gravatar = '';
             }
             return gravatar;
+          },
+
+          _createCloudHtml: function (fontSizeRanges) {
+            var oldUseImages = this._useImages;
+            this._useImages = true;
+            try {
+              return this.$class.$superp._createCloudHtml.call(this, fontSizeRanges);
+            } finally {
+              this._useImages = oldUseImages;
+            }
           }
         });
 
-        var avatars = new Avatars();
+        var avatars = new Avatars($('#avatars').data('image-size'), [0.8, 1, 3] /* TUNE: font size range */);
 
         var now = getUtcDate(new Date());
         var milisecondsPerDay = 24 * 60 * 60 * 1000;
@@ -458,44 +582,106 @@ $(document).ready(function () {
         return;
       }
      
-      $('#tags').html(tags.createCloudHtml([0.8, 2.5]) /* TUNE: font size range */);
+      var TABLE_LAYOUT_OPTIMAL = 1
+      var TABLE_LAYOUT_SMALL = 2;
 
-      $('#avatars').html(avatars.createCloudHtml([0.8, 1, 3]) /* TUNE: font size range */);
-      
-      var table = $('table').DataTable({
+      var currentTableLayoutId = null;
+
+      var getRecommendedTableLayoutId = function () {
+        if ($(document).width() < $(tableId).data('small-table-size'))
+          return TABLE_LAYOUT_SMALL;
+        else
+          return TABLE_LAYOUT_OPTIMAL;
+      };
+
+      var getColumnWidths = function (tableLayoutId) {
+        switch (tableLayoutId) {
+          case TABLE_LAYOUT_OPTIMAL:
+            return optimalColumnWidths;
+
+          case TABLE_LAYOUT_SMALL:
+            return smallScreenColumnWidths;
+
+          default:
+            throw Error("Not implemented");
+        }
+      }
+
+      var getUseAvatarImages = function (tableLayoutId) {
+        switch (tableLayoutId) {
+          case TABLE_LAYOUT_OPTIMAL:
+            return true;
+
+          case TABLE_LAYOUT_SMALL:
+            return false;
+
+          default:
+            throw Error("Not implemented");
+        }
+      };
+
+      var tableId = '#table';
+
+      currentTableLayoutId = getRecommendedTableLayoutId();
+
+      avatars.useImages(getUseAvatarImages(currentTableLayoutId));
+
+      var columnWidths = getColumnWidths(currentTableLayoutId);
+
+      var isColumnVisible = function (columnId) {
+        return columnWidths[columnId] != null;
+      }
+
+      var getColumnWidth = function (columnId) {
+        return columnWidths[columnId];
+      }
+
+      var table = $(tableId).DataTable({
         data: data,
-        pagingType: 'full_numbers',
-        pageLength: 100,
-        processing: true,
+        pagingType: 'simple_numbers',
+        pageLength: DEFAULT_PAGE_LENGTH,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        processing: false,
         autoWidth: false,
         deferRender: true,
+        language: {
+          search: '<span class="eye">filter =</span> (',
+          lengthMenu: '_MENU_',
+          info: '1 ≤ <span class="page">_START_</span> &hellip; <span class="page">_END_</span> ≤ _TOTAL_',
+          infoEmpty: '0 ≤ <span class="page">0</span> &hellip; <span class="page">0</span> ≤ 0',
+          infoFiltered: ' &lt; _MAX_', // '(Ʃ = _MAX_)'
+          thousands: ''
+        },
         columns: [
           //  COLUMN_AUTHOR
           {
             'className': SELECTOR_AUTHOR.substr(1),
             'type': 'string',
-            'orderData': [COLUMN_AUTHOR, COLUMN_COMPONENT],
-            'width': '10%'
+            'width': getColumnWidth(COLUMN_AUTHOR),
+            'visible': isColumnVisible(COLUMN_AUTHOR)
           },
           // COLUMN_COMPONENT
           {
             'className': SELECTOR_COMPONENT.substr(1),
             'type': 'string',
-            'width': '15%'
+            'width': getColumnWidth(COLUMN_COMPONENT),
+            'visible': isColumnVisible(COLUMN_COMPONENT)
           },
           // COLUMN_DESCRIPTION
           {
             'className': SELECTOR_DESCRIPTION.substr(1),
             'type': 'string',
             'sortable': false,
-            'width': '30%'
+            'width': getColumnWidth(COLUMN_DESCRIPTION),
+            'visible': isColumnVisible(COLUMN_DESCRIPTION)
           },
           // COLUMN_TAGS
           {
             'className': SELECTOR_TAGS.substr(1),
             'type': 'string',
             'sortable': false,
-            'width': '15%'
+            'width': getColumnWidth(COLUMN_TAGS),
+            'visible': isColumnVisible(COLUMN_TAGS)
           },
           // COLUMN_TAGS_HASH
           {
@@ -511,41 +697,47 @@ $(document).ready(function () {
           {
             'className': SELECTOR_STARS.substr(1),
             'type': 'numeric',
-            'width': '5%',
+            'width': getColumnWidth(COLUMN_STARS),
+            'visible': isColumnVisible(COLUMN_STARS),
             'searchable': false
           },
           // COLUMN_AGE
           {
             'className': SELECTOR_AGE.substr(1),
             'type': 'numeric',
-            'width': '5%',
+            'width': getColumnWidth(COLUMN_AGE),
+            'visible': isColumnVisible(COLUMN_AGE),
             'searchable': false
           },
           // COLUMN_ISSUES
           {
             'className': SELECTOR_ISSUES.substr(1),
             'type': 'numeric',
-            'width': '5%',
+            'width': getColumnWidth(COLUMN_ISSUES),
+            'visible': isColumnVisible(COLUMN_ISSUES),
             'searchable': false
           },
           // COLUMN_FRESHNESS
           {
             'className': SELECTOR_FRESHNESS.substr(1),
             'type': 'numeric',
-            'width': '5%',
+            'width': getColumnWidth(COLUMN_FRESHNESS),
+            'visible': isColumnVisible(COLUMN_FRESHNESS),
             'searchable': false
           },
           // COLUMN_VERSION
           {
             'className': SELECTOR_VERSION.substr(1),
             'type': 'string',
-            'width': '5%'
+            'width': getColumnWidth(COLUMN_VERSION),
+            'visible': isColumnVisible(COLUMN_VERSION)
           },
           // COLUMN_FORKS
           {
             'className': SELECTOR_FORKS.substr(1),
             'type': 'numeric',
-            'width': '5%',
+            'width': getColumnWidth(COLUMN_FORKS),
+            'visible': isColumnVisible(COLUMN_FORKS),
             'searchable': false
           },
           // COLUMN_LICENSE
@@ -583,17 +775,23 @@ $(document).ready(function () {
             $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + repo + '/issues" class="external" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
           
-          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(tags.createHtml, tags).join(" "));
+          $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(tags.createHtml, tags).join(""));
           
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         },
         // http://datatables.net/reference/option/dom
-        'dom': '<"fixed-scroll-header"<"filter"f><"top"lip>>rt'
+        'dom': '<"fixed-scroll-header"<"filter"f><"navigator"<"left"i><"right"pl>>>rt'
       });
       
       $('.dataTables_filter').append($('#tags-controller'));
       $('.dataTables_filter').append($('#avatars-controller'));
+
+      // $('.dataTables_filter input').attr('placeholder', ANY_VALUE_TEXT);
       
+      $('#last-modified').attr('datetime', lastModified.toJSON());
+      $('#last-modified').attr('title', lastModified.toJSON());
+      $('#last-modified').timeago();
+
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
       $('.invisible').removeClass('invisible');
@@ -602,32 +800,127 @@ $(document).ready(function () {
       $("#tags").toggle();
       $("#avatars").toggle();
 
-      var fixedHeader;
-      var updateFixedHeader;
+      var StickyController = Class({
+        $statics: {
+          TABLE_HEADER: 1,
+          PAGE_FILTER: 2
+        },
+
+        constructor: function () {
+          this._fixedParts = 0;
+          this._pageFilterOffset = 0;
+        },
+
+        _isFixed: function (partId) {
+          return (this._fixedParts & partId) != 0;
+        },
+
+        _getPartIds: function(partIds) {
+          if (partIds instanceof Array)
+            return partIds;
+          if (partIds == null)
+            return [
+              StickyController.PAGE_FILTER,
+              StickyController.TABLE_HEADER
+            ];
+          return [partIds];
+        },
+
+        lock: function(partIds) {
+          partIds = this._getPartIds(partIds);
+
+          for (var i = 0; i < partIds.length; i++) {
+            var partId = partIds[i];
+
+            if (!this._isFixed()) {
+              this._fixedParts = this._fixedParts | partId;
+
+              switch (partId) {
+                case StickyController.TABLE_HEADER:
+                  $(tableId).stickyTableHeaders({
+                    fixedOffset: $('.fixed-scroll-header'),
+                    leftOffset: 0 /* TODO: this is some compensation for thead border width */
+                  });
+                  break;
+
+                case StickyController.PAGE_FILTER:
+                  $('.fixed-scroll-header').stick_in_parent({
+                    offset_top: this._pageFilterOffset
+                  });
+                  break;
+              }
+            }
+          }
+        },
+
+        unlock: function (partIds) {
+          partIds = this._getPartIds(partIds);
+
+          for (var i = 0; i < partIds.length; i++) {
+            var partId = partIds[i];
+
+            if (this._isFixed(partId)) {
+              this._fixedParts = this._fixedParts & (~partId);
+
+              switch (partId) {
+                case StickyController.TABLE_HEADER:
+                  $(tableId).stickyTableHeaders('destroy');
+                  break;
+
+                case StickyController.PAGE_FILTER:
+                  $('.fixed-scroll-header').trigger('sticky_kit:detach');
+                  break;
+              }
+            }
+          }
+        },
+
+        update: function (partIds) {
+          partIds = this._getPartIds(partIds);
+
+          for (var i = 0; i < partIds.length; i++) {
+            var partId = partIds[i];
+
+            if (this._isFixed(partId)) {
+              switch (partId) {
+                case StickyController.TABLE_HEADER:
+                  $(window).trigger('resize.stickyTableHeaders');
+                  break;
+
+                case StickyController.PAGE_FILTER:
+                  $(document.body).trigger('sticky_kit:recalc');
+                  $('.fixed-scroll-header').stick_in_parent({
+                    offset_top: this._pageFilterOffset
+                  });
+                  break;
+              }
+            }
+          }
+        },
+
+        offsetTop: function (value) {
+          value = parseInt(value || 0);
+          if (value != this._pageFilterOffset) {
+            this._pageFilterOffset = value;
+            if (this._isFixed(StickyController.PAGE_FILTER)) {
+              this.unlock(StickyController.PAGE_FILTER);
+              this.lock(StickyController.PAGE_FILTER);
+              this.update(StickyController.TABLE_HEADER);
+            }
+          }
+        }
+      });
+      var sticky = new StickyController();
 
       window.tagControllerClick = function (visible) {
-        if (visible == null) {
-          $("#tags").toggle();
-        } else if (visible) {
-          $("#tags").show()
-        } else {
-          $("#tags").hide();
-        }
-        // reposition fixed header
-        updateFixedHeader();
+        tags.display(visible);
       };
+      $('#tag-filter').html(ANY_VALUE);
 
       window.avatarControllerClick = function (visible) {
-        if (visible == null) {
-          $("#avatars").toggle();
-        } else if (visible) {
-          $("#avatars").show()
-        } else {
-          $("#avatars").hide();
-        }
-        // reposition fixed header
-        updateFixedHeader();
+        avatars.display(visible);
       };
+      $('#avatar-filter').html(ANY_VALUE);
 
       $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         if (tags.isFilterEmpty()) {
@@ -645,24 +938,29 @@ $(document).ready(function () {
         }
       });
 
-      /*
-      // build fixed table headers
-      fixedHeader = new $.fn.dataTable.FixedHeader(table, {
-        // TODO: workaround for https://github.com/DataTables/FixedHeader/issues/29
-        alwaysCloneTop: true
-      });
-      updateFixedHeader = function() { fixedHeader.fnUpdate(); };
-      */
-      fixedHeader = $('table').stickyTableHeaders({
-        fixedOffset: $('.fixed-scroll-header'),
-            leftOffset: 1 /* TODO: ??? */
-      });
-      updateFixedHeader = function () {
-        $(window).trigger('resize.stickyTableHeaders');
-        $('.fixed-scroll-header').trigger('sticky_kit:recalc');
-        $('.fixed-scroll-header').stick_in_parent();
+      var windowSizeChanged = function () {
+        var newTableLayoutId = getRecommendedTableLayoutId();
+
+        if (currentTableLayoutId != newTableLayoutId) {
+          currentTableLayoutId = newTableLayoutId;
+
+          avatars.useImages(getUseAvatarImages(currentTableLayoutId));
+          resizeColumns(table, getColumnWidths(currentTableLayoutId));
+        }
       };
-      $('.fixed-scroll-header').stick_in_parent();
+
+      $(window).resize(windowSizeChanged);
+
+      var _layoutUpdatedNeeded = false;
+      var layoutChanged = function () {
+        _layoutUpdatedNeeded = true;
+      };
+
+      var updateLayout = function () {
+        if (_layoutUpdatedNeeded)
+          sticky.update();
+        _layoutUpdatedNeeded = false;
+      }
 
       var HashFragment = Class({
         $statics: {
@@ -765,9 +1063,73 @@ $(document).ready(function () {
 
       var orderHashFragment = new OrderHashFragment(table);
 
+      var PageLengthHashFragment = Class({
+        constructor: function(table) {
+          this._table = table;
+        },
+
+        _getValidPageLengths: function() {
+          return this._table.settings()[0].aLengthMenu[0];
+        },
+
+        _getPageLengthNames: function() {
+          return this._table.settings()[0].aLengthMenu[1];
+        },
+
+        decode: function (hash) {
+          var names = this._getPageLengthNames();
+          for (var i = 0; i < names.length; i++)
+            if (hash.toLowerCase() == names[i].toString().toLowerCase())
+              return this._getValidPageLengths()[i];
+          return DEFAULT_PAGE_LENGTH;
+        },
+
+        encode: function (pageLengthParam) {
+          if (pageLengthParam == DEFAULT_PAGE_LENGTH)
+            return '';
+          var values = this._getValidPageLengths();
+          for (var i = 0; i < values.length; i++)
+            if (values[i] == pageLengthParam)
+              return this._getPageLengthNames()[i].toString().toLowerCase();
+          return '';
+        }
+      });
+
+      var pageLengthHashFragment = new PageLengthHashFragment(table);
+
+      var PageIndexHashFragment = Class({
+        decode: function (hash) {
+          if (hash == '')
+            return 0;
+          var index = parseInt(hash) - 1;
+          if (index >= 0)
+            return index;
+          return 0;
+        },
+
+        encode: function (indexParam) {
+          if (indexParam == 0)
+            return '';
+          return (indexParam + 1).toString();
+        }
+      });
+
+      var pageIndexHashFragment = new PageIndexHashFragment();
+
       var currentStateHash = null;
 
       var $input = $('.dataTables_filter :input[type=search]').focus();
+      $(window).scrollTop(0);
+
+      var inputChanged = function () {
+        if (($input.val() || '') == '') {
+          $input.removeClass('active');
+          $input.width('5em' /* TODO: this guesswork should go to CSS definition */);
+        } else {
+          $input.addClass('active');
+          $input.width($input.textWidth());
+        }
+      }
 
       // reconfigure the input field so that it does not filter/sort/draw the datatable after
       // every keypress. Exactly same function is provided by DataTables plugin
@@ -791,19 +1153,55 @@ $(document).ready(function () {
           window.clearTimeout(oldTimerId);
           oldTimerId = window.setTimeout(function () {
             $(sender).removeClass('busy');
+
+            layoutChanged();
+
             oldEventHandler.apply(sender);
-            }, 300 /* TODO: TUNE: put here some 'nice' number */
+
+            inputChanged();
+          }, 300 /* TODO: TUNE: put here some 'nice' number */
           );
         });
       }
 
-      var applyFilter = function(tableApi, value) {
+      var resizeColumns = function (tableApi, columnWidths) {
+        var columns = tableApi.context[0].aoColumns; // TODO: this is a hack-style access. What is the correct API call?
+        for (var i = 0; i < columnWidths.length; i++) {
+          var columnWidth = columnWidths[i];
+          var column = columns[i];
+          if (column == null)
+            continue;
+          if (columnWidth == null) {
+            tableApi = tableApi.column(i).visible(false);
+          } else {
+            column.nTh.style.width = columnWidth;
+            tableApi = tableApi.column(i).visible(true);
+          }
+        };
+        layoutChanged();
+        tableApi.draw();
+
+        sticky.unlock(StickyController.TABLE_HEADER);
+        sticky.lock(StickyController.TABLE_HEADER);
+      };
+
+      var applyFilter = function(tableApi, value, newPageIndex) {
         if (value != null) {
           $input.val(value);
         }
 
+        inputChanged();
+
         // as a side-effect of this call should be the call to saveState()
-        tableApi.search($input.val()).draw();
+        tableApi = tableApi.search($input.val());
+
+        var resetPosition = true;
+
+        if (newPageIndex != null) {
+          tableApi = tableApi.page(newPageIndex);
+          resetPosition = false;
+        }
+        tableApi.draw(resetPosition);
       };
     
       var saveState = function () {
@@ -813,7 +1211,11 @@ $(document).ready(function () {
         if (orderParam == orderHashFragment.encode(DEFAULT_ORDER))
           orderParam = '';
 
-        var hash = HashFragment.encode({ 's': $input.val(), 't': tags.getFilteredArray(), 'a': avatars.getFilteredArray(), 'o': orderParam });
+        var pageLengthParam = pageLengthHashFragment.encode(table.page.len());
+
+        var pageIndexParam = pageIndexHashFragment.encode(table.page());
+
+        var hash = HashFragment.encode({ 's': $input.val(), 't': tags.getFilteredArray(), 'a': avatars.getFilteredArray(), 'o': orderParam, 'p': pageIndexParam, 'l': pageLengthParam });
 
         if (HashFragment.equals(hash, currentStateHash)) {
           // nothing to do
@@ -844,6 +1246,8 @@ $(document).ready(function () {
 
         saveState();
 
+        layoutChanged();
+
         // filter the data table
         table.draw();
       };
@@ -858,6 +1262,8 @@ $(document).ready(function () {
 
         saveState();
 
+        layoutChanged();
+
         // filter the data table
         table.draw();
       };
@@ -865,7 +1271,22 @@ $(document).ready(function () {
       // handle all changes triggered internally or through UI
       // this might be alternatively monitored on the $input element through 'input' and 'keyup' events
       // http://datatables.net/forums/discussion/21284/how-to-detect-when-filter-field-gets-cleared-by-the-x-button-click
-      $('table').on('search.dt', saveState);
+      $(tableId).on('search.dt', saveState);
+
+      // Respond to page-length changes
+      $(tableId).on('length.dt', function () {
+        layoutChanged();
+        saveState();
+      });
+
+      // Respond to page-index changes
+      $(tableId).on('page.dt', function () {
+        saveState();
+      });
+
+      $(tableId).on('draw.dt', function () {
+        updateLayout();
+      });
 
       var gotoState = function (hash) {
         if (!(typeof(hash) == "string"))
@@ -880,18 +1301,29 @@ $(document).ready(function () {
 
         tags.activate(hashParams['t']);
         avatars.activate(hashParams['a']);
+        var pageLength = pageLengthHashFragment.decode(hashParams['l'] || '');
+        var pageIndex = pageIndexHashFragment.decode(hashParams['p'] || '');
         var orderParam = hashParams['o'] || '';
         var tableApi;
         if (orderParam == '')
           tableApi = table.order(DEFAULT_ORDER);
         else
           tableApi = table.order(orderHashFragment.decode(orderParam));
-        applyFilter(tableApi, hashParams['s'] || '');
+        if (pageLength != table.page.len())
+          tableApi = tableApi.page.len(pageLength);
+        var newPageIndex = null;
+        if (pageIndex != table.page())
+          newPageIndex = pageIndex;
+        applyFilter(tableApi, hashParams['s'] || '', newPageIndex);
       };
 
       // hashchange (HTML4) seems to be the only really cross-browser compatible way how to make
       // some sort of hash fragment history work. Especially when the local 'file:' mode is needed
       $(window).on('hashchange', gotoState);
+
+      sticky.lock();
+
+      inputChanged();
 
       gotoState();
     }

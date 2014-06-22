@@ -1,19 +1,22 @@
-component.io
+﻿component.io
 ============
 
-Search tool for JavaScript [components](https://github.com/component/guide).
+This is search tool for modular JavaScript [component](https://github.com/component/guide') framework. The component framework was invented by [TJ Holowaychuk](https://github.com/visionmedia')
 
-This is **experimental testing version** of proposal for new site design for the ```component.io``` searchable repository. The design was created as [Nipster](https://github.com/eirikb/nipster)-clone
-modified to work with [Component Crawler](https://github.com/component/crawler.js) as data source.
+I have created the search tool because I was not able to find anything useful with the official ```http://component.io``` search tool
 
-Go and check <http://component.xmojmr.cz/>
+My version of the search tool is available online at <http://component.xmojmr.cz/> under [WTFPL](http://en.wikipedia.org/wiki/WTFPL) license
 
-### Current Status (2014-06-10)
+You can use ```sorting``` by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks. ```full-text search``` in description, tags, author name, component name. ```tag =``` cloud filter, multiple selected tags allow for narrowing down the search. ```author =``` cloud filter, authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors. Each query is represented by ```bookmarkable url```
+
+Original design was inspired by [Nipster](https://github.com/eirikb/nipster), modified to work with [Component Crawler](https://github.com/component/crawler.js) as data source.
+
+### Current Status (2014-06-22)
 - Maturity
  - (+) no known bugs
  - (+) stable bookmarkable url API
  - (+) usable (full text search, tag search, author search..)
- - (-) ugly  
+ - (-) slow and ugly on small-screen mobile devices
 - Details (+)
  - Display of crawler.js database using searchable sortable jQuery DataTables works.
  - Columns author, component and issues are clickable.
@@ -23,18 +26,24 @@ Go and check <http://component.xmojmr.cz/>
  - Search and sort and tag and author query generates stateful hash fragments (bookmarkable urls)
  - Search filter is sticked to the top of the screen
  - 1st version of REST API available
+ - user interface pixel-aligned, colorized and split into 2 different responsive layouts
 - Details (-)
- - ugly, even more ugly on mobile devices (no responsive CSS)
- - slow initialization
+ - all data processing is done in the client's browser. This causes significant delay on mobile devices
+ - ugly and unusable on small-screen devices with portrait layout
  
-### Changelog
-- Release 0.3.0
- - not as slow as used to be, Opera Mobile CORS problems solved by hosting on a server with PHP backend
-
-### How to fork for hosting in your own environment
-- in ```index.html``` modify canonical url and script for automatic browser-side redirection to the canonical url
-- If your webserver is not Apache, replicate logic in ```api/v1/.htaccess``` (enables gzip + cache control for crawler.json) and in ```api/v1/crawler/.htaccess``` (activates PHP script for handling the ```POST api/v1/crawler/updates```)
-
+### 3rd party credits (A→Z)
+- Allane Jardine for [jQuery DataTables](http://www.datatables.net/)
+- Digital Zoom Studio for [Calculate Text Width with jQuery](http://digitalzoomstudio.net/2013/06/19/calculate-text-width-with-jquery/)
+- [Icons8](http://icons8.com/)
+- Jack Moore for [jQuery Modal Tutorial](http://www.jacklmoore.com/notes/jquery-modal-tutorial/)
+- Jonas Mosbech for [StickyTableHeaders](https://github.com/jmosbech/StickyTableHeaders)
+- [jQuery](http://jquery.com/)
+- leafo for [sticky-kit](https://github.com/leafo/sticky-kit)
+- LearnBoost for [Stylus](https://github.com/LearnBoost/stylus)
+- Mozilla for [Nunjucks](https://github.com/mozilla/nunjucks)
+- Ryan McGeary for [timeago](http://timeago.yarp.com/)
+- Tan Nhu for [JSFace OOP library](https://github.com/tnhu/jsface)
+- TJ Holowaychuk for [superagent](https://github.com/visionmedia/superagent)
 
 ### Internal API
 #### GET /api/v1/crawler.json
@@ -45,3 +54,9 @@ Returns component crawler.js JSON dataset as described in <https://github.com/co
 
 Payload ignored. Triggers cache update of the crawler.json dataset from the <http://component-crawler.herokuapp.com/> server
 
+### Changelog
+- Release 1.0.0
+ - original raw look was colorized. There are two different table layouts at the breakpoint of horizontal screen size 1150 pixels
+ - moved to xmojmr's site build system
+- Release 0.3.0
+ - not as slow as used to be, Opera Mobile CORS problems solved by hosting on a server with PHP backend

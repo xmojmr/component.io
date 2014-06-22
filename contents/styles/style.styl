@@ -1,0 +1,871 @@
+﻿---
+template:
+  - default.css
+  - smrk.styl
+---
+$_body_margin = 6px
+
+html {
+  line-height: $_body_line_height
+}
+
+body {
+  background-color: $_background_color
+  color: $_text_color
+  margin-left: 0
+  margin-right: 0
+  margin-bottom: 0
+  margin-top: $_body_margin
+  margin-bottom: $_body_margin
+  font-family: Verdana, Tahoma, Arial, Helvetica;
+  font-style: normal;
+  font-weight: normal;
+  font-size: $_body_font_size
+  line-height: $_body_line_height
+}
+
+#content {
+  background-color: $_table_background_color
+  color: $_table_text_color
+  padding-left: $_body_margin
+  padding-right: $_body_margin
+  padding-bottom: $_body_margin
+}
+
+header {
+  padding-left: $_body_margin
+  padding-right: $_body_margin
+  padding-bottom: $_body_margin
+}
+
+footer {
+  padding-top: $_body_margin
+  padding-left: $_body_margin
+  padding-right: $_body_margin
+}
+
+selected-button-font() {
+/* TODO: TUNE: */
+  if false {
+    font-weight: bold
+  } else {
+    font-weight: normal
+  }
+}
+
+locked-selected-button-font() {
+  font-weight: normal
+}
+
+normal-button-font() {
+  font-weight: normal
+}
+
+table.dataTable th {
+  cursor: pointer
+  background-color: $_table_background_color
+  border-color: $_table_border_color
+  border-width: 1px 0 1px 0
+  border-style: solid
+  text-overflow: ellipsis
+  overflow: hidden
+  line-height: $_body_line_height
+}
+
+table.dataTable thead {
+  background-color: $_table_background_color
+}
+
+/* Undo DataTables styling */
+table.dataTable thead th.ui-state-default {
+  border-right-width: 1px
+}
+
+table.dataTable thead th.ui-state-default.sorting_disabled {
+  border-right-width: 0px
+}
+
+table.dataTable thead th, table.dataTable thead td {
+  border-bottom: 1px solid $_table_border_color;
+}
+
+table.dataTable th.sorting_disabled {
+  cursor: default
+  normal-button-font()
+}
+
+table.dataTable thead th {
+/* TODO: TUNE:
+  text-align: left
+  vertical-align: top
+*/
+  text-align: center
+  vertical-align: middle
+
+  padding-left: 2px
+  padding-right: 2px
+  padding-top: 2px
+  word-break: break-word
+  word-wrap: break-word
+  white-space: normal
+}
+
+sort-glyph-width = 12px /* TODO: */
+
+table.dataTable thead th div.DataTables_sort_wrapper {
+  padding-right: 0
+}
+
+table.dataTable thead .sorting {
+  background: none /* url("/resources/sort_both.png") no-repeat center right; */
+}
+
+table.dataTable thead .sorting_asc {
+  background: url("/resources/sort_asc.png") no-repeat center right;
+}
+table.dataTable thead .sorting_asc .DataTables_sort_wrapper {
+  margin-right: sort-glyph-width
+}
+
+table.dataTable thead .sorting_desc {
+  background: url("/resources/sort_desc.png") no-repeat center right;
+}
+table.dataTable thead .sorting_desc .DataTables_sort_wrapper {
+  margin-right: sort-glyph-width
+}
+
+table.dataTable thead .sorting_asc_disabled {
+  background: none /* url("/resources/sort_asc_disabled.png") no-repeat center right; */
+}
+table.dataTable thead .sorting_desc_disabled {
+  background: none /* url("/resources/sort_desc_disabled.png") no-repeat center right; */
+}
+
+navigator-button() {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  border: 1px solid $_table_button_border_color
+  background-color: $_table_button_background_color
+  color: $_table_button_text_color !important
+}
+
+.dataTables_wrapper .dataTables_paginate a.ui-button {
+  navigator-button()
+}
+
+.dataTables_wrapper .dataTables_paginate .fg-button.previous,
+.dataTables_wrapper .dataTables_paginate .fg-button.next {
+  /* hide extra navigation buttons */
+  display: none
+}
+
+#table_filter span.any {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 4px
+  border: 1px solid $_table_locked_selected_button_background_color
+  background-color: $_table_locked_selected_button_background_color
+  color: $_table_locked_selected_button_text_color
+
+  margin-left: 1px
+  margin-right: 1px
+  margin-top: 0
+  margin-bottom: 1px
+  text-decoration: none
+
+  vertical-align: top
+
+  // font-size: 90%
+
+  locked-selected-button-font()
+  line-height: $_body_line_height
+  white-space: nowrap
+  display: inline-block
+  cursor: default
+}
+
+header span.eye {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 4px
+  border: 1px solid $_table_eye_background_color
+  background-color: $_table_eye_background_color
+  color: $_table_eye_text_color
+
+  margin-left: 0
+  margin-right: 1px
+  margin-top: 0
+  margin-bottom: -1px
+  text-decoration: none
+
+  vertical-align: text-bottom
+
+  // font-size: 90%
+
+  locked-selected-button-font()
+  line-height: $_body_line_height
+  white-space: nowrap
+  display: inline-block
+  cursor: default
+}
+
+#table_filter span.eye {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 4px
+  border: 1px solid $_table_eye_background_color
+  background-color: $_table_eye_background_color
+  color: $_table_eye_text_color
+
+  margin-left: 1px
+  margin-right: 1px
+  margin-top: 0
+  margin-bottom: 1px
+  text-decoration: none
+
+  vertical-align: top
+
+  // font-size: 90%
+
+  locked-selected-button-font()
+  line-height: $_body_line_height
+  white-space: nowrap
+  display: inline-block
+  cursor: default
+}
+
+#table_filter {
+  text-align: left
+  float: left
+}
+
+#table_filter label {
+  display: inline
+}
+
+#tags-controller {
+  display: inline
+}
+
+#avatars-controller {
+  display: inline
+}
+
+.dataTables_wrapper .dataTables_paginate .fg-button:first-child {
+  button-corners() 
+}
+.dataTables_wrapper .dataTables_paginate .fg-button:last-child {
+  button-corners()
+}
+
+/* selected page number */
+.dataTables_wrapper .dataTables_paginate span .fg-button.ui-state-disabled {
+  navigator-button()
+  background-color: $_table_locked_selected_button_background_color
+  color: $_table_locked_selected_button_text_color !important
+  border-color: $_table_locked_selected_button_background_color
+  locked-selected-button-font()
+  cursor: default
+}
+
+/* selected record range number */
+.dataTables_wrapper .dataTables_info span.page {
+  navigator-button()
+  background-color: $_table_locked_selected_button_background_color
+  color: $_table_locked_selected_button_text_color !important
+  border-color: $_table_locked_selected_button_background_color
+  locked-selected-button-font()
+  padding-left: $_page_button_horizontal_padding
+  padding-right: $_page_button_horizontal_padding
+  padding-top: $_page_button_vertical_padding
+  padding-bottom: $_page_button_vertical_padding
+}
+
+table.dataTable.no-footer {
+  width: 100%
+  table-layout: fixed
+  border-spacing: 0
+  border-collapse: collapse
+  border-width: 0 1px 1px 1px
+  border-style: solid
+  border-color: $_table_border_color
+}
+
+controller-button() {
+  navigator-button()
+  padding-left: 0.5em
+  padding-right: 0.5em
+  margin-left: 1px
+  margin-right: 1px
+  line-height: $_body_line_height
+  display: inline-flex
+  cursor: pointer
+}
+
+#tags-controller .ui-button {
+  controller-button() 
+}
+#tags-controller .ui-button.ui-state-active {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color !important
+  selected-button-font()
+}
+
+#avatars-controller .ui-button {
+  controller-button() 
+}
+#avatars-controller .ui-button.ui-state-active {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color !important
+  selected-button-font()
+}
+
+table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {
+  background-color: $_table_background_stripe_color
+}
+
+table.dataTable.stripe tbody tr.even, table.dataTable.display tbody tr.even {
+  background-color: $_table_background_color
+}
+table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1 {
+  background-color: $_table_selected_background_stripe_color
+}
+table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-column.stripe tbody tr.even > .sorting_1 {
+  background-color: $_table_selected_background_color
+}
+table.dataTable.display tbody tr.odd > .sorting_2, table.dataTable.order-column.stripe tbody tr.odd > .sorting_2 {
+  background-color: $_table_selected_background_stripe_color
+}
+table.dataTable.display tbody tr.even > .sorting_2, table.dataTable.order-column.stripe tbody tr.even > .sorting_2 {
+  background-color: $_table_selected_background_color
+}
+table.dataTable.display tbody tr.odd > .sorting_3, table.dataTable.order-column.stripe tbody tr.odd > .sorting_3 {
+  background-color: $_table_selected_background_stripe_color
+}
+table.dataTable.display tbody tr.even > .sorting_3, table.dataTable.order-column.stripe tbody tr.even > .sorting_3 {
+  background-color: $_table_selected_background_color
+}
+
+table.dataTable thead .sorting {
+  normal-button-font()
+  color: $_table_button_text_color
+  background-color: $_table_button_background_color
+  border: 1px solid $_table_button_border_color
+}
+
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color
+  selected-button-font()
+}
+
+table.dataTable td {
+  overflow: hidden
+  white-space: nowrap
+  vertical-align: top
+}
+
+table.dataTable tbody th,
+table.dataTable tbody td {
+  padding-left: 2px
+  padding-right: 2px
+  padding-top: 2px
+  padding-bottom: 2px
+}
+
+table.dataTable.cell-border tbody tr td:first-child {
+  border-left-color: $_table_border_color;
+}
+table.dataTable.cell-border tbody tr td:last-child {
+  border-right-color: $_table_border_color;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+  color: $_table_text_color;
+}
+
+.dataTables_wrapper .dataTables_paginate .fg-button {
+  color: $_table_text_color !important
+}
+
+table.dataTable.cell-border tbody th,
+table.dataTable.cell-border tbody td {
+  border-top: 1px solid $_table_line_color;
+  border-right: 1px solid $_table_line_color;
+}
+
+table.dataTable thead {
+  border-color: $_table_border_color
+}
+
+.lastUpdate {
+  float: right
+  padding-right: 200px
+}
+
+.fork {
+  position: absolute 
+  top: 0 
+  right: 0 
+  border: 0 
+  z-index: 50
+}
+
+/* ----------------------------------- */
+.invisible {
+  display: none
+}
+
+table.dataTable td.forks {
+  text-align: right
+}
+table.dataTable td.issues {
+  text-align: right
+}
+table.dataTable td.stars {
+  text-align: right
+}
+table.dataTable td.watchers {
+  text-align: right
+}
+table.dataTable td.age {
+  text-align: right
+}
+table.dataTable td.freshness {
+  text-align: right
+}
+table.dataTable td.version {
+  text-align: right
+  text-overflow: ellipsis
+}
+table.dataTable td.description {
+  white-space: normal
+}
+table.dataTable td.tags {
+  white-space: normal
+}
+
+/* display everything given the column width limits. Taken from http://stackoverflow.com/a/5108401/2626313 */
+wrap() {
+  word-wrap: break-word
+  word-break: break-all
+  white-space: normal
+}
+
+table.dataTable td.author {
+  wrap()
+}
+table.dataTable td.author span {
+  text-overflow: ellipsis
+  vertical-align: top
+}
+table.dataTable td.author img {
+  margin-right: 2px
+}
+table.dataTable td.component {
+  /* text-overflow: ellipsis */
+  wrap()
+}
+.tag {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 4px
+  border: 1px solid $_table_button_border_color
+  background-color: $_table_button_background_color
+  color: $_table_button_text_color
+
+  margin-left: 1px
+  margin-right: 1px
+  margin-top: 1px
+  margin-bottom: 1px
+  text-decoration: none
+  font-size: 0.9em
+  line-height: $_body_line_height
+  white-space: nowrap
+  display: inline-block
+  cursor: pointer
+  vertical-align: middle
+}
+#tags-controller .tag {
+  font-size: 1em
+
+  vertical-align: top
+  margin-top: 0
+}
+.tag.active {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color !important
+  selected-button-font()
+}
+.tag-count {
+  font-size: 0.9em
+  font-weight: normal
+  margin-right: 4px
+  color: #999
+}
+.avatar {
+  button-corners()
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 4px
+  border: 1px solid $_table_button_border_color
+  background-color: $_table_button_background_color
+  color: $_table_button_text_color
+
+  margin-left: 1px
+  margin-right: 1px
+  margin-top: 1px
+  margin-bottom: 1px
+  text-decoration: none
+
+  // font-size: 90%
+
+  line-height: $_body_line_height
+  white-space: nowrap
+  display: inline-block
+  cursor: pointer
+  vertical-align: middle
+
+  display: inline-flex
+  align-items: center
+}
+
+#avatars-controller .avatar {
+  vertical-align: top
+  margin-top: 0
+}
+
+.avatar.active {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color !important
+  selected-button-font()
+}
+
+.avatar-count {
+  font-size: 0.9em
+  font-weight: normal
+  margin-right: 4px
+  color: #999
+}
+.avatar img {
+  vertical-align: middle
+  margin-right: 2px
+  background-color: $_table_button_background_color
+}
+
+input() {
+  background-color: $_table_button_background_color
+  color: $_table_text_color
+  border: 1px solid $_table_button_border_color
+  button-corners()
+  line-height: $_body_line_height
+  padding-top: 2px
+  padding-bottom: 2px
+  cursor: pointer
+  font-size: inherit
+  font-family: inherit
+  font-style: inherit
+  font-weight: inherit
+}
+
+input {
+  input()
+
+  /* needed for IE11 */
+  height: $_body_line_height
+
+  margin-right: 1px
+  vertical-align: top
+}
+
+input.active {
+  background-color: $_table_selected_button_background_color
+  color: $_table_selected_button_text_color
+  selected-button-font()
+}
+
+input:focus {
+  cursor: text
+  background-color: $_table_background_color
+  color: $_table_text_color
+}
+
+input.busy {
+  background-color: #fdfdb4
+}
+
+select {
+  input()
+
+  /* TODO: height does not fit surrounding buttons, some solution is suggested in http://stackoverflow.com/questions/20477823/select-html-element-with-height */
+  padding-top: $_length_combo_vertical_padding
+
+  padding-left: 0.2em
+  padding-right: 0.2em
+
+  vertical-align: top
+}
+
+.dataTables_wrapper .filter {
+  display: block
+  clear: both
+  float: none
+  text-align: left
+}
+.dataTables_wrapper .navigator {
+  display: block
+  clear: both
+  float: none
+  padding-top: $_body_margin
+}
+
+.dataTables_wrapper .navigator .left {
+  display: inline-block
+  float: left
+}
+.dataTables_wrapper .navigator .right {
+  display: inline-block
+  float: right
+}
+.dataTables_wrapper .navigator .left .dataTables_info {
+  display: inline
+  float: none
+
+  /* TODO: this positioning is a complete guess work */
+  position: relative
+  bottom: -4px
+}
+.dataTables_wrapper .navigator .right .dataTables_paginate {
+  display: inline
+  float: none
+}
+
+/* style the 'ellipsis' button inside paginator */
+.dataTables_wrapper .navigator .right .dataTables_paginate span span {
+  padding-left: 0.4em
+  padding-right: 0.3em
+}
+
+.dataTables_wrapper .navigator .right .dataTables_length {
+  display: inline
+  float: none
+}
+
+.dataTables_wrapper .navigator .right .dataTables_length:before {
+  content: '×'
+  padding-left: 0.5em
+  padding-right: 0.5em
+}
+
+#modal-content {
+  text-align: center
+  overflow-y: auto
+  background-color: $_table_background_color
+  padding: 0
+  margin: 0
+  max-height: 100%
+}
+
+#modal-overlay {
+  position: fixed
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  background: #000
+  opacity: 0.5
+  z-index: 5
+}
+
+#modal-modal {
+  position: absolute
+  background: $_table_background_color
+  padding: $_body_margin
+  z-index: 6
+}
+
+#modal-close {
+  position: absolute
+  background: url("/resources/close_window-26.png") 0 0 no-repeat
+  width: 26px
+  height: 26px
+  display: block
+  text-indent: -9999px
+  top: $_body_margin
+  left: $_body_margin
+}
+
+#tag-filter {
+  display: inline
+}
+
+#avatar-filter {
+  display: inline
+}
+/* the fixed scrolling header */
+.fixed-scroll-header {
+  /* this is necessary for the jQuery.outerHeight to work. Suggested by http://stackoverflow.com/a/4119825/2626313 */
+  overflow: hidden
+  background-color: $_table_background_color
+  z-index: 1
+  padding-top: $_body_margin
+  padding-bottom: $_body_margin
+}
+.fixed-scroll-header.is_stuck {
+  /* hide table's right margin in FireFox. 1px might be enough */
+  padding-right: 2px
+}
+.dataTables_wrapper .dataTables_filter input {
+  margin-left: 2px
+  margin-right: 4px
+  padding-left: 0.5em
+  padding-right: 0.5em  
+  text-align: center
+}
+
+#error {
+  color: red
+  text-align: center
+  font-size: 2em
+  line-height: $_body_line_height
+  margin-top: 6px
+}
+
+footer {
+  text-align: center
+}
+
+#logo {
+  vertical-align: top
+  padding-right: $_body_margin
+}
+
+header .intro.first {
+  margin-top: 0
+}
+
+header .intro.last {
+  margin-bottom: 0
+}
+
+header table {
+  width: 100%
+}
+
+#status {
+/*
+  vertical-align: bottom
+  text-align: center
+*/
+  padding-top: $_body_margin
+  width: 100%
+  float: left
+}
+
+#loading {
+  display: table
+  background-color: $_table_background_color
+  width: 100%
+}
+
+#loading-label {
+  margin-left: auto
+  margin-right: auto
+  text-align: center
+  font-size: 1em
+  margin-bottom: 1em
+  margin-top: 1.4em /* TODO: approximatelly 1em + $_body_margin */
+  display: table
+  padding-left: 0.5em
+  padding-right: 0.5em
+  padding-top: 2px
+  padding-bottom: 2px
+  button-corners()
+  color: $_table_eye_text_color
+  background-color: $_table_eye_background_color
+}
+
+dfn-base() {
+/* TODO: TUNE:
+  font-family: "Source Code Pro", Consolas, Menlo, Monaco, "Courier New", monospace
+*/
+  padding: 0px 4px
+  font-size: 0.85em
+
+/* TODO: TUNE: */
+  -webkit-border-radius: 4px
+  -moz-border-radius: 4px
+  border-radius: 4px
+/*
+  -webkit-border-radius: 0px
+  -moz-border-radius: 0px
+  border-radius: 0px
+*/
+
+  white-space: nowrap
+  display: inline-block
+  vertical-align: text-bottom
+
+/* TODO:
+  margin-bottom: 3px
+*/
+
+  margin-left: -2px
+  margin-right: -2px
+}
+
+span.dfn {
+  dfn-base()
+  color: $_icon_color
+  background-color: $_line_color
+  border: 1px solid $_line_color
+}
+
+span.dfn.href {
+  dfn-base()
+  color: $_table_button_text_color
+  background-color: $_table_button_background_color
+  border: 1px solid $_table_button_border_color
+
+  /*
+  margin-top: -2px
+  margin-bottom: -2px
+  */
+}
+
+span.dfn a {
+/* TODO:
+  color: $_table_button_text_color
+  text-decoration: none
+*/
+}
+
+span.dfn img {
+  height: 1em
+  width: auto
+  vertical-align: text-top
+  padding-top: 0.1em
+  padding-right: 0.3em
+}
+
+time.dfn {
+  dfn-base()
+  color: $_icon_color
+  background-color: $_line_color
+  border: 1px solid $_line_color
+}

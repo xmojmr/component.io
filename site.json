@@ -1,0 +1,14 @@
+{
+  "site.properties": {
+    "build": 672,
+    "langs": [
+      {
+        "lang": "en",
+        "url": "/",
+        "name": "English",
+        "dateformat": "d mmm yyyy",
+        "decimalSeparator": "."
+      }
+    ]
+  }
+}

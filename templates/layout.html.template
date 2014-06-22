@@ -1,0 +1,41 @@
+---
+template: [root, default.css, h5bp_plugins.js, h5bp_main.js]
+---
+{% macro lang_tag() %}{%if lang %}{%if lang != 'x-default' %} lang="{{ lang }}"{% endif %}{% endif %}{% endmacro %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"{{ lang_tag() }}> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"{{ lang_tag() }}> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"{{ lang_tag() }}> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"{{ lang_tag() }}> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        {% if title %}<title>{{ title }}</title>{% endif %}
+        {% if description %}<meta name="description" content="{{ description }}">{% endif %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block redirect %}{% if redirect %}<meta http-equiv="refresh" content="0;url={{ url | relative_goto(redirect) }}">{% endif %}{% endblock %}
+
+        <meta name="generator" content="xmojmr's site">
+
+        <!-- disable incorrect clickable phone numbers that catch numbers that are not phone numbers at all.
+             http://www.mobify.com/blog/mobile-browser-format-detection/
+          -->
+        <meta name="format-detection" content="telephone=no">
+
+        {% if canonical %}<link rel="canonical" href="{{ canonical }}">{% endif %}
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        {% if stylesheet.all %}<link rel="stylesheet" href="{{ stylesheet.all }}" type="text/css">{% endif %}
+        {% if stylesheet.print %}<link rel="stylesheet" media="print" href="{{ stylesheet.print }}" type="text/css">{% endif %}
+        {% block modernizr %}{% endblock %}
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        {% block body %}{% endblock %}
+
+        {% if script %}<script src="{{ script }}"></script>{% endif %}
+    </body>
+</html>

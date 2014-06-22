@@ -1,0 +1,4 @@
+---
+---
+{% component "https://github.com/jmosbech/StickyTableHeaders/blob/0.1.11/js/jquery.stickytableheaders.js" %}
+{% component "https://github.com/leafo/sticky-kit/blob/v1.0.4/jquery.sticky-kit.js" %}
