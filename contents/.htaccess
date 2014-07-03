@@ -1,0 +1,3 @@
+<filesMatch "\.(css|js|html)$">
+    SetOutputFilter DEFLATE
+</filesMatch>

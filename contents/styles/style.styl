@@ -1,6 +1,10 @@
 ﻿---
 template:
   - default.css
+#  - smallFont.styl
+  - normalFont.styl
+  - roundButtons.styl
+#  - normalButtons.styl
   - smrk.styl
 ---
 $_body_margin = 6px
@@ -22,6 +26,7 @@ body {
   font-weight: normal;
   font-size: $_body_font_size
   line-height: $_body_line_height
+  min-width: unit($_minimal_window_size, 'px')
 }
 
 #content {
@@ -246,16 +251,11 @@ header span.eye {
   float: left
 }
 
-#table_filter label {
-  display: inline
-}
-
-#tags-controller {
-  display: inline
-}
-
+#table_filter label,
+#tags-controller,
 #avatars-controller {
   display: inline
+  vertical-align: middle
 }
 
 .dataTables_wrapper .dataTables_paginate .fg-button:first-child {
@@ -305,8 +305,15 @@ controller-button() {
   margin-left: 1px
   margin-right: 1px
   line-height: $_body_line_height
-  display: inline-flex
+  display: inline
   cursor: pointer
+
+  /* TODO: This is guesswork to make it work in Internet Explorer 10 - damn you (seems to not support display: inline-flex) */
+  vertical-align: top
+  padding-bottom: 5px
+  padding-top: 3px
+  position: relative
+  top: 2px
 }
 
 #tags-controller .ui-button {
@@ -400,6 +407,23 @@ table.dataTable.cell-border tbody tr td:last-child {
   color: $_table_text_color !important
 }
 
+/* Undo default jQuery DataTables layout changes for small-screen devices */
+@media screen and (max-width: 767px) {
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    /*
+    float: none;
+    text-align: center;
+    */
+  }
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_paginate {
+    margin-top: 0;
+  }
+}
+
 table.dataTable.cell-border tbody th,
 table.dataTable.cell-border tbody td {
   border-top: 1px solid $_table_line_color;
@@ -455,6 +479,11 @@ table.dataTable td.description {
 }
 table.dataTable td.tags {
   white-space: normal
+}
+table.dataTable td.component img.forked {
+  height: 1.2em
+  width: auto
+  padding-left: 2px
 }
 
 /* display everything given the column width limits. Taken from http://stackoverflow.com/a/5108401/2626313 */
@@ -693,7 +722,7 @@ select {
 }
 
 #modal-modal {
-  position: absolute
+  position: fixed
   background: $_table_background_color
   padding: $_body_margin
   z-index: 6
@@ -718,7 +747,7 @@ select {
   display: inline
 }
 /* the fixed scrolling header */
-.fixed-scroll-header {
+#fixed-scroll-header {
   /* this is necessary for the jQuery.outerHeight to work. Suggested by http://stackoverflow.com/a/4119825/2626313 */
   overflow: hidden
   background-color: $_table_background_color
@@ -726,10 +755,16 @@ select {
   padding-top: $_body_margin
   padding-bottom: $_body_margin
 }
-.fixed-scroll-header.is_stuck {
-  /* hide table's right margin in FireFox. 1px might be enough */
-  padding-right: 2px
+#fixed-scroll-header.is_stuck {
+  left: 0
 }
+#fixed-scroll-header.is_stuck .scroll-header {
+  position: relative
+  left: 0
+  padding-right: $_body_margin
+  margin-right: $_body_margin
+}
+
 .dataTables_wrapper .dataTables_filter input {
   margin-left: 2px
   margin-right: 4px
@@ -753,6 +788,11 @@ footer {
 #logo {
   vertical-align: top
   padding-right: $_body_margin
+}
+
+header .intro {
+  margin-top: 0.5em
+  margin-bottom: 0.5em
 }
 
 header .intro.first {
@@ -861,6 +901,10 @@ span.dfn img {
   vertical-align: text-top
   padding-top: 0.1em
   padding-right: 0.3em
+}
+
+time {
+  cursor: default
 }
 
 time.dfn {

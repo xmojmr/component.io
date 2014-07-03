@@ -16,8 +16,8 @@ var modal = (function () {
     left = Math.max($(window).width() - $modal.outerWidth(), 0) / 2;
 
     $modal.css({
-      top:top + $(window).scrollTop(), 
-      left:left + $(window).scrollLeft()
+      top:top /* only for fixed mode: + $(window).scrollTop() */, 
+      left:left /* only for fixed mode: + $(window).scrollLeft() */
     });
   };
 

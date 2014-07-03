@@ -15,8 +15,6 @@ template: [root, default.css, h5bp_plugins.js, h5bp_main.js]
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% block redirect %}{% if redirect %}<meta http-equiv="refresh" content="0;url={{ url | relative_goto(redirect) }}">{% endif %}{% endblock %}
 
-        <meta name="generator" content="xmojmr's site">
-
         <!-- disable incorrect clickable phone numbers that catch numbers that are not phone numbers at all.
              http://www.mobify.com/blog/mobile-browser-format-detection/
           -->

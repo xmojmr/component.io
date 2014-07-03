@@ -7,16 +7,22 @@ I have created the search tool because I was not able to find anything useful wi
 
 My version of the search tool is available online at <http://component.xmojmr.cz/> under [WTFPL](http://en.wikipedia.org/wiki/WTFPL) license
 
-You can use ```sorting``` by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks. ```full-text search``` in description, tags, author name, component name. ```tag =``` cloud filter, multiple selected tags allow for narrowing down the search. ```author =``` cloud filter, authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors. Each query is represented by ```bookmarkable url```
+You can use
+
+- ```multi-column``` ```sorting``` by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks
+- ```full-text search``` in description, tags, author name, component name
+- ```tag =``` cloud filter, multiple selected tags allow for narrowing down the search
+- ```author =``` cloud filter, authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors
+- Each query is represented by ```bookmarkable url```
 
 Original design was inspired by [Nipster](https://github.com/eirikb/nipster), modified to work with [Component Crawler](https://github.com/component/crawler.js) as data source.
 
-### Current Status (2014-06-22)
+### Current Status (2014-07-03)
 - Maturity
- - (+) no known bugs
+ - (+) no serious known bugs on modern desktop browsers
  - (+) stable bookmarkable url API
  - (+) usable (full text search, tag search, author search..)
- - (-) slow and ugly on small-screen mobile devices
+ - (-) slow and not reliable on low-end mobile devices
 - Details (+)
  - Display of crawler.js database using searchable sortable jQuery DataTables works.
  - Columns author, component and issues are clickable.
@@ -27,9 +33,13 @@ Original design was inspired by [Nipster](https://github.com/eirikb/nipster), mo
  - Search filter is sticked to the top of the screen
  - 1st version of REST API available
  - user interface pixel-aligned, colorized and split into 2 different responsive layouts
+ - server configured to use gzip compression where possible
+ - crawler.js dataset contains only subset really used by the application
 - Details (-)
  - all data processing is done in the client's browser. This causes significant delay on mobile devices
- - ugly and unusable on small-screen devices with portrait layout
+ - default 100 rows page length is too heavy to layout and render on low-end mobile processors
+ - calculation of screen dimensions does not work reliably in portrait layout on mobile devices
+ - some functions (e.g. cloud display) does not work as designed in Opera Mobile browser, Android 2.3 browser
  
 ### 3rd party credits (A→Z)
 - Allane Jardine for [jQuery DataTables](http://www.datatables.net/)

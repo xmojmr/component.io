@@ -18,8 +18,6 @@ $(document).ready(function () {
   }
 
   require("superagent")
-    // using this link causes CORS problems e.g. with Opera Mobile or Opera for Windows v 12.17
-    //.get('http://component-crawler.herokuapp.com/.json')
     .get('/api/v1/crawler.json')
     .withCredentials()
     .on('error', function (res) {
@@ -35,11 +33,11 @@ $(document).ready(function () {
         var json = res.body;
         var lastModified = new Date(new Date(res.header['last-modified']).setMilliseconds(0));
         var data = [];
-      
-        var getUtcDate = function(d) {
+
+        var getUtcDate = function (d) {
           return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
         };
-      
+
         var COLUMN_AUTHOR = 0;
         var COLUMN_COMPONENT = 1;
         var COLUMN_DESCRIPTION = 2;
@@ -51,8 +49,7 @@ $(document).ready(function () {
         var COLUMN_FRESHNESS = 8;
         var COLUMN_VERSION = 9;
         var COLUMN_FORKS = 10;
-        var COLUMN_LICENSE = 11;
-        var COLUMN_WATCHERS = 12;
+        var COLUMN_FLAGS = 11;
 
         var optimalColumnWidths = [
           '10%', // COLUMN_AUTHOR
@@ -66,8 +63,7 @@ $(document).ready(function () {
           '5%', // COLUMN_FRESHNESS
           '5%', // COLUMN_VERSION
           '5%', // COLUMN_FORKS
-          null, // COLUMN_LICENSE
-          null, // COLUMN_WATCHERS
+          null, // COLUMN_FLAGS
           null
         ];
 
@@ -83,8 +79,7 @@ $(document).ready(function () {
           '10%', // COLUMN_FRESHNESS
           null, // COLUMN_VERSION
           null, // COLUMN_FORKS
-          null, // COLUMN_LICENSE
-          null, // COLUMN_WATCHERS
+          null, // COLUMN_FLAGS
           null
         ];
 
@@ -92,7 +87,7 @@ $(document).ready(function () {
         var SELECTOR_COMPONENT = '.component';
         var SELECTOR_VERSION = '.version';
         var SELECTOR_DESCRIPTION = '.description';
-        var SELECTOR_LICENSE = '.license';
+        var SELECTOR_FLAGS = '.flags';
         var SELECTOR_TAGS = '.tags';
         var SELECTOR_TAGS_HASH = '.tags-hash';
         var SELECTOR_FORKS = '.forks';
@@ -177,7 +172,7 @@ $(document).ready(function () {
             }
           },
 
-          set: function(key, propertyName, propertyValue) {
+          set: function (key, propertyName, propertyValue) {
             var bag = this._properties[key] || {};
             if (propertyValue == null)
               delete bag[propertyName];
@@ -186,7 +181,7 @@ $(document).ready(function () {
             this._properties[key] = bag;
           },
 
-          get: function(key, propertyName) {
+          get: function (key, propertyName) {
             var bag = this._properties[key];
             if (bag == null)
               return null;
@@ -229,7 +224,7 @@ $(document).ready(function () {
             return escapeHtml(t);
           },
 
-          createHtml: function(t, attributes, size) {
+          createHtml: function (t, attributes, size) {
             var active = '';
             var hash = this.$class.hash(t);
             if (this._filteredHashes[hash])
@@ -324,18 +319,18 @@ $(document).ready(function () {
             , this).join("");
           },
 
-          createCloudHtml: function() {
+          createCloudHtml: function () {
             if (this._cloudHtml == null)
               this._cloudHtml = this._createCloudHtml(this._fontSizeRanges);
 
             return this._cloudHtml;
           },
 
-          getControllerButtonControl: function() {
+          getControllerButtonControl: function () {
             return $('#' + this._className + 's-controller a.ui-button');
           },
 
-          getCloudControl: function() {
+          getCloudControl: function () {
             return $('#' + this._className + 's');
           },
 
@@ -386,7 +381,7 @@ $(document).ready(function () {
             this._filteredHashedArray = this._filteredArray.map(function (t) { return SEPARATOR + tagHash(t) + SEPARATOR; });
           },
 
-          _draw: function() {
+          _draw: function () {
             var container = $('#' + this._className + '-filter');
 
             switch (this._filteredArray.length) {
@@ -404,6 +399,10 @@ $(document).ready(function () {
             }
           },
 
+          _normalize: function(value) {
+            return value;
+          },
+
           activate: function (filter) {
             filter = filter || [];
             if (!(filter instanceof Array))
@@ -414,7 +413,7 @@ $(document).ready(function () {
               this.toggle(this._filteredArray[0]);
 
             for (var i = 0; i < filter.length; i++)
-              this.toggle(filter[i]);
+              this.toggle(this._normalize(filter[i]));
           },
 
           display: function (visible) {
@@ -469,7 +468,7 @@ $(document).ready(function () {
             return false;
           },
 
-          useImages: function(value) {
+          useImages: function (value) {
             if (this._useImages != value) {
               this._useImages = value;
               this._draw();
@@ -516,35 +515,38 @@ $(document).ready(function () {
         var now = getUtcDate(new Date());
         var milisecondsPerDay = 24 * 60 * 60 * 1000;
         var n = json.components.length;
+
         for (var i = 0; i < n; i++) {
           var component = json.components[i];
           var j = component.repo.indexOf('/');
           var keywords = component.keywords || [];
-        
+
           // convert license to tag
           if (component.license != null) {
             var licenses;
             if (component.license instanceof Array)
               licenses = component.license;
             else
-              licenses = component.license.toString().split('/');
-            
-            for (var l = 0; l < licenses.length; l++) {
-              keywords.push('license-' + licenses[l].trim());
+              licenses = [component.license];
+
+            for (var l = licenses.length - 1; l >= 0; l--) {
+              keywords.push('license ' + licenses[l]);
             }
+          } else {
+            keywords.push("license undefined");
           }
-        
-          keywords.sort(function(a,b) {
+
+          keywords.sort(function (a, b) {
             return a.localeCompare(b);
           });
-        
+
           for (var k = 0; k < keywords.length; k++) {
             tags.add(keywords[k]);
           }
 
           var author = component.repo.substr(0, j);
 
-          if (avatars.add(author, (component.github.stargazers_count || 0) - (10 /* one open issue removes 10 stars */ *(component.github.open_issues_count || 0)))) {
+          if (avatars.add(author, (component.github.stargazers_count || 0) - (10 /* one open issue removes 10 stars */ * (component.github.open_issues_count || 0)))) {
             avatars.set(author, PROPERTY_GRAVATAR, component.github.owner.gravatar_id);
           };
 
@@ -560,28 +562,26 @@ $(document).ready(function () {
             // COLUMN_TAGS_HASH
             Tags.SEPARATOR + (keywords || []).map(Tags.hash).join(Tags.SEPARATOR) + Tags.SEPARATOR,
             // COLUMN_STARS
-            component.github.stargazers_count  || '',
+            component.github.stargazers_count || '',
             // COLUMN_AGE
             Math.floor((now - getUtcDate(new Date(component.github.created_at))) / milisecondsPerDay),
             // COLUMN_ISSUES
-            component.github.open_issues_count  || '',
+            component.github.open_issues_count || '',
             // COLUMN_FRESHNESS
             Math.floor((now - getUtcDate(new Date(component.github.updated_at))) / milisecondsPerDay),
             // COLUMN_VERSION
             component.version || '',
             // COLUMN_FORKS
-            component.github.forks  || '',
-            // COLUMN_LICENSE
-            component.license || '',
-            // COLUMN_WATCHERS
-            component.github.watchers_count || ''
+            component.github.forks || '',
+            // COLUMN_FLAGS
+            { forked: component.github.fork || false },
           ]);
         }
       } catch (error) {
         sorry(error);
         return;
       }
-     
+
       var TABLE_LAYOUT_OPTIMAL = 1
       var TABLE_LAYOUT_SMALL = 2;
 
@@ -740,21 +740,11 @@ $(document).ready(function () {
             'visible': isColumnVisible(COLUMN_FORKS),
             'searchable': false
           },
-          // COLUMN_LICENSE
+          // COLUMN_FLAGS
           {
-            'className': SELECTOR_LICENSE.substr(1),
+            'className': SELECTOR_FLAGS.substr(1),
             'type': 'string'
             // license is included in the tag column. No need to display it twice
-            , 'visible': false,
-            'searchable': false
-          },
-          // COLUMN_WATCHERS
-          {
-            'className': SELECTOR_WATCHERS.substr(1),
-            'type': 'numeric'
-             // TODO: enable once the crawler bug
-             // https://github.com/component/crawler.js/issues/5
-             // gets fixed
             , 'visible': false,
             'searchable': false
           }
@@ -762,35 +752,43 @@ $(document).ready(function () {
         'order': DEFAULT_ORDER,
         rowCallback: function (tr, data) {
           var $r = $(tr);
-          
+
           var author = data[COLUMN_AUTHOR];
-          
+
           $r.find(SELECTOR_AUTHOR).html('<a href="https://github.com/' + author + '" class="external" target="_blank" title="' + author + '">' + avatars.createImageHtml(author) + '<span>' + author + '</span></a>');
 
           var repo = data[COLUMN_AUTHOR] + '/' + data[COLUMN_COMPONENT];
-          
-          $r.find(SELECTOR_COMPONENT).html('<a href="https://github.com/' + repo + '" class="external" target="_blank" title="' + repo + '">' + data[COLUMN_COMPONENT] + '</a>');
+
+          var flags = data[COLUMN_FLAGS];
+
+          var componentClass = flags.forked ? ' forked': '';
+          var componentTail = flags.forked ? '<img src=' + url('/resources/forked.png') + ' class="forked">' : '';
+          var componentTitleTail = flags.forked ? ' (forked)' : '';
+
+          $r.find(SELECTOR_COMPONENT).html('<a href="https://github.com/' + repo + '" class="external' + componentClass + '" target="_blank" title="' + repo + componentTitleTail + '">' + data[COLUMN_COMPONENT] + componentTail + '</a>');
 
           if (data[COLUMN_ISSUES] != '') {
             $r.find(SELECTOR_ISSUES).html('<a href="https://github.com/' + repo + '/issues" class="external" target="_blank">' + data[COLUMN_ISSUES] + '</a>');
           }
-          
+
           $r.find(SELECTOR_TAGS).html(data[COLUMN_TAGS].map(tags.createHtml, tags).join(""));
-          
+
           $r.find(SELECTOR_VERSION).attr("title", data[COLUMN_VERSION]);
         },
         // http://datatables.net/reference/option/dom
-        'dom': '<"fixed-scroll-header"<"filter"f><"navigator"<"left"i><"right"pl>>>rt'
+        'dom': '<"#fixed-scroll-header"<"scroll-header"<"filter"f><"navigator"<"left"i><"right"pl>>>>rt'
       });
-      
+
       $('.dataTables_filter').append($('#tags-controller'));
       $('.dataTables_filter').append($('#avatars-controller'));
 
       // $('.dataTables_filter input').attr('placeholder', ANY_VALUE_TEXT);
-      
+
       $('#last-modified').attr('datetime', lastModified.toJSON());
       $('#last-modified').attr('title', lastModified.toJSON());
       $('#last-modified').timeago();
+
+      $('#release-date').timeago();
 
       // hide loading indicator and show so far hidden elements
       $('#loading').toggle();
@@ -809,13 +807,63 @@ $(document).ready(function () {
         constructor: function () {
           this._fixedParts = 0;
           this._pageFilterOffset = 0;
+          this._isEnabled = true;
+          $(window).scroll(method(this, this._windowScrollChanged));
+        },
+
+        isEnabled: function(value) {
+          if (value != null)
+            if (value != this._isEnabled)
+              if (value) {
+                this._isEnabled = true;
+              } else {
+                this.unlock();
+                this._isEnabled = false;
+              }
+          return this._isEnabled;
+        },
+
+        _getPageFilterWidthPadding: function() {
+          return parseInt($("#content").css('paddingLeft'));
+        },
+
+        _getPageFilterWidth: function(element) {
+          return $('#content').outerWidth();
+        },
+
+        _getPageFilterHeightPadding: function () {
+          return parseInt($('#fixed-scroll-header').css('paddingTop'));
+        },
+
+        _windowScrollChanged: function () {
+          if (this._isFixed(StickyController.PAGE_FILTER)) {
+            // Let the interior of the filter row respond to horizontal window scrollbar changes
+            $('#fixed-scroll-header .scroll-header').css({
+              left: (-$(document).scrollLeft() + this._getPageFilterWidthPadding()).toString() + 'px'
+            });
+          }
         },
 
         _isFixed: function (partId) {
           return (this._fixedParts & partId) != 0;
         },
 
-        _getPartIds: function(partIds) {
+        _isActive: function (partId) {
+          if (!this._isEnabled)
+            return false;
+
+          switch (partId) {
+            case StickyController.TABLE_HEADER:
+              return $(tableId + ' thead.tableFloatingHeaderOriginal').css('position') == 'fixed';
+
+            case StickyController.PAGE_FILTER:
+              return $('#fixed-scroll-header').hasClass('is_stuck');
+          }
+
+          return false;
+        },
+
+        _getPartIds: function (partIds) {
           if (partIds instanceof Array)
             return partIds;
           if (partIds == null)
@@ -826,7 +874,10 @@ $(document).ready(function () {
           return [partIds];
         },
 
-        lock: function(partIds) {
+        lock: function (partIds) {
+          if (!this._isEnabled)
+            return;
+
           partIds = this._getPartIds(partIds);
 
           for (var i = 0; i < partIds.length; i++) {
@@ -838,14 +889,15 @@ $(document).ready(function () {
               switch (partId) {
                 case StickyController.TABLE_HEADER:
                   $(tableId).stickyTableHeaders({
-                    fixedOffset: $('.fixed-scroll-header'),
+                    fixedOffset: $('#fixed-scroll-header'),
                     leftOffset: 0 /* TODO: this is some compensation for thead border width */
                   });
                   break;
 
                 case StickyController.PAGE_FILTER:
-                  $('.fixed-scroll-header').stick_in_parent({
-                    offset_top: this._pageFilterOffset
+                  $('#fixed-scroll-header').stick_in_parent({
+                    offset_top: this._pageFilterOffset,
+                    width_calculator: method(this, this._getPageFilterWidth)
                   });
                   break;
               }
@@ -854,6 +906,9 @@ $(document).ready(function () {
         },
 
         unlock: function (partIds) {
+          if (!this._isEnabled)
+            return;
+
           partIds = this._getPartIds(partIds);
 
           for (var i = 0; i < partIds.length; i++) {
@@ -868,7 +923,7 @@ $(document).ready(function () {
                   break;
 
                 case StickyController.PAGE_FILTER:
-                  $('.fixed-scroll-header').trigger('sticky_kit:detach');
+                  $('#fixed-scroll-header').trigger('sticky_kit:detach');
                   break;
               }
             }
@@ -876,7 +931,14 @@ $(document).ready(function () {
         },
 
         update: function (partIds) {
+          if (!this._isEnabled)
+            return;
+
+          var originalTop = $(window).scrollTop();
+
           partIds = this._getPartIds(partIds);
+
+          var isActive = this._isActive(StickyController.PAGE_FILTER);
 
           for (var i = 0; i < partIds.length; i++) {
             var partId = partIds[i];
@@ -889,28 +951,47 @@ $(document).ready(function () {
 
                 case StickyController.PAGE_FILTER:
                   $(document.body).trigger('sticky_kit:recalc');
-                  $('.fixed-scroll-header').stick_in_parent({
-                    offset_top: this._pageFilterOffset
+                  $('#fixed-scroll-header').stick_in_parent({
+                    offset_top: this._pageFilterOffset,
+                    padding_width: this._getPageFilterWidthPadding()
                   });
                   break;
               }
             }
           }
+
+          // Reposition the vertical scrollbar into a good-looking position
+          if (isActive) {
+            // TODO: is all this necessary?
+            this.unlock(StickyController.PAGE_FILTER);
+            this.lock(StickyController.PAGE_FILTER);
+            // move scrollbar so that sticking gets triggered
+            // TODO: what is the correct formula?
+            $(window).scrollTop($('#header').outerHeight(true) + $('#status').outerHeight(true) + this._getPageFilterHeightPadding() + 1 /* TODO: magic 0 to make the page filter go into the fixed mode */);
+          } else {
+            $(window).scrollTop(originalTop);
+          }
         },
 
-        offsetTop: function (value) {
-          value = parseInt(value || 0);
-          if (value != this._pageFilterOffset) {
-            this._pageFilterOffset = value;
-            if (this._isFixed(StickyController.PAGE_FILTER)) {
-              this.unlock(StickyController.PAGE_FILTER);
-              this.lock(StickyController.PAGE_FILTER);
-              this.update(StickyController.TABLE_HEADER);
+          offsetTop: function (value) {
+            value = parseInt(value || 0);
+            if (value != this._pageFilterOffset) {
+              this._pageFilterOffset = value;
+              if (this._isFixed(StickyController.PAGE_FILTER)) {
+                this.unlock(StickyController.PAGE_FILTER);
+                this.lock(StickyController.PAGE_FILTER);
+                this.update(StickyController.TABLE_HEADER);
             }
           }
         }
       });
       var sticky = new StickyController();
+
+      // On touch devices (e.g. Opera Mobile 12 on Android) all the sticky stuff is
+      // very unreliable calculating wrong positions etc. I'll disable sticking completely
+      //
+      // TODO: make the sticking work event on mobile devices
+      sticky.isEnabled(!$('html').hasClass('touch'));
 
       window.tagControllerClick = function (visible) {
         tags.display(visible);
@@ -1020,11 +1101,11 @@ $(document).ready(function () {
           DEFAULT_SORT_DIRECTION: 'asc'
         },
 
-        constructor: function(table) {
+        constructor: function (table) {
           this._table = table;
         },
 
-        _getColumnNames: function() {
+        _getColumnNames: function () {
           var result = [];
           var tableColumns = this._table.settings()[0].aoColumns;
           for (var i = 0; i < tableColumns.length; i++) {
@@ -1053,7 +1134,7 @@ $(document).ready(function () {
           var columnNames = this._getColumnNames();
           for (var i = 0; i < orderParam.length; i++) {
             var sortDirection = ' ' + orderParam[i][1];
-            if (sortDirection == ' ' +OrderHashFragment.DEFAULT_SORT_DIRECTION)
+            if (sortDirection == ' ' + OrderHashFragment.DEFAULT_SORT_DIRECTION)
               sortDirection = '';
             result.push(columnNames[orderParam[i][0]] + sortDirection);
           }
@@ -1064,15 +1145,15 @@ $(document).ready(function () {
       var orderHashFragment = new OrderHashFragment(table);
 
       var PageLengthHashFragment = Class({
-        constructor: function(table) {
+        constructor: function (table) {
           this._table = table;
         },
 
-        _getValidPageLengths: function() {
+        _getValidPageLengths: function () {
           return this._table.settings()[0].aLengthMenu[0];
         },
 
-        _getPageLengthNames: function() {
+        _getPageLengthNames: function () {
           return this._table.settings()[0].aLengthMenu[1];
         },
 
@@ -1118,8 +1199,7 @@ $(document).ready(function () {
 
       var currentStateHash = null;
 
-      var $input = $('.dataTables_filter :input[type=search]').focus();
-      $(window).scrollTop(0);
+      var $input = $('.dataTables_filter :input[type=search]');
 
       var inputChanged = function () {
         if (($input.val() || '') == '') {
@@ -1185,7 +1265,7 @@ $(document).ready(function () {
         sticky.lock(StickyController.TABLE_HEADER);
       };
 
-      var applyFilter = function(tableApi, value, newPageIndex) {
+      var applyFilter = function (tableApi, value, newPageIndex) {
         if (value != null) {
           $input.val(value);
         }
@@ -1203,37 +1283,42 @@ $(document).ready(function () {
         }
         tableApi.draw(resetPosition);
       };
-    
+
       var saveState = function () {
-        var orderParam = orderHashFragment.encode(table.order());
+        var originalTop = $(window).scrollTop();
+        try {
+          var orderParam = orderHashFragment.encode(table.order());
 
-        // default order will not be saved in the hash fragment
-        if (orderParam == orderHashFragment.encode(DEFAULT_ORDER))
-          orderParam = '';
+          // default order will not be saved in the hash fragment
+          if (orderParam == orderHashFragment.encode(DEFAULT_ORDER))
+            orderParam = '';
 
-        var pageLengthParam = pageLengthHashFragment.encode(table.page.len());
+          var pageLengthParam = pageLengthHashFragment.encode(table.page.len());
 
-        var pageIndexParam = pageIndexHashFragment.encode(table.page());
+          var pageIndexParam = pageIndexHashFragment.encode(table.page());
 
-        var hash = HashFragment.encode({ 's': $input.val(), 't': tags.getFilteredArray(), 'a': avatars.getFilteredArray(), 'o': orderParam, 'p': pageIndexParam, 'l': pageLengthParam });
+          var hash = HashFragment.encode({ 's': $input.val(), 't': tags.getFilteredArray(), 'a': avatars.getFilteredArray(), 'o': orderParam, 'p': pageIndexParam, 'l': pageLengthParam });
 
-        if (HashFragment.equals(hash, currentStateHash)) {
-          // nothing to do
-          return;
+          if (HashFragment.equals(hash, currentStateHash)) {
+            // nothing to do
+            return;
+          }
+
+          if (!HashFragment.equals(window.location.hash, hash)) {
+            window.location.hash = HashFragment.normalize(hash);
+            // TODO: would that make any sense?
+            // window.history.pushState(null, null, hash || '#');
+          }
+          if (!HashFragment.equals(hash, '')) {
+            // TODO: this is attempt to fix IE behavior in local 'file:' mode. Is it really needed?
+            // is this the correct way to 'fix it'?
+            window.location.href = window.location.href;
+          }
+
+          currentStateHash = hash;
+        } finally {
+          $(window).scrollTop(originalTop);
         }
-
-        if (!HashFragment.equals(window.location.hash, hash)) {
-          window.location.hash = HashFragment.normalize(hash);
-          // TODO: would that make any sense?
-          // window.history.pushState(null, null, hash || '#');
-        }
-        if (!HashFragment.equals(hash, '')) {
-          // TODO: this is attempt to fix IE behavior in local 'file:' mode. Is it really needed?
-          // is this the correct way to 'fix it'?
-          window.location.href = window.location.href;
-        }
-
-        currentStateHash = hash;
       };
 
       window.tagClick = function (element) {
@@ -1241,14 +1326,14 @@ $(document).ready(function () {
 
         tags.toggle(self.data('tag'), self.data('hash'));
 
-        // hide the cloud selector on tag-select
+          // hide the cloud selector on tag-select
         window.tagControllerClick(false);
 
         saveState();
 
         layoutChanged();
 
-        // filter the data table
+          // filter the data table
         table.draw();
       };
 
@@ -1289,7 +1374,7 @@ $(document).ready(function () {
       });
 
       var gotoState = function (hash) {
-        if (!(typeof(hash) == "string"))
+        if (!(typeof (hash) == "string"))
           hash = window.location.hash;
 
         if (HashFragment.equals(hash, currentStateHash)) {
@@ -1326,6 +1411,15 @@ $(document).ready(function () {
       inputChanged();
 
       gotoState();
+
+      // If there are no filters set through the url (tags, avaters, full text) then put focus to the input
+      // field - hinting user to enter full text filter
+      var hashParams = HashFragment.decode(currentStateHash);
+      if (((hashParams['t']|| '') + (hashParams['a'] || '') + (hashParams['s'] || '')) == '') {
+        $input.focus();
+        // make whole above screen part visible
+        $(window).scrollTop(0);
+      }
     }
   );
 });
