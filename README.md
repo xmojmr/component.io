@@ -65,6 +65,8 @@ Returns component crawler.js JSON dataset as described in <https://github.com/co
 Payload ignored. Triggers cache update of the crawler.json dataset from the <http://component-crawler.herokuapp.com/> server
 
 ### Changelog
+- Release 1.0.1
+ - bugfixes and small usability improvements 
 - Release 1.0.0
  - original raw look was colorized. There are two different table layouts at the breakpoint of horizontal screen size 1150 pixels
  - moved to xmojmr's site build system
