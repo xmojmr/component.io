@@ -1,7 +1,7 @@
 ﻿component.io
 ============
 
-This is search tool for modular JavaScript [component](https://github.com/component/guide') framework. The component framework was invented by [TJ Holowaychuk](https://github.com/visionmedia')
+This is search tool for modular JavaScript [component](https://github.com/component/guide) framework. The component framework was invented by [TJ Holowaychuk](https://github.com/visionmedia)
 
 I have created the search tool because I was not able to find anything useful with the official ```http://component.io``` search tool
 
