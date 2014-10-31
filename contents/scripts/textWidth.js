@@ -13,7 +13,7 @@ jQuery.fn.textWidth = function(){
         'font-size' : _t.css('font-size')
         ,'font-family' : _t.css('font-family')
         ,'font-weight' : _t.css('font-weight')
-    })
+    });
     var width =_lastspan.width() + 5;
     //_t.html(html_org);
     _lastspan.remove();

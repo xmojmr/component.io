@@ -1,18 +1,16 @@
----
----
-{% component "https://github.com/jmosbech/StickyTableHeaders/blob/0.1.11/js/jquery.stickytableheaders.js" %}
+/*{% component "https://github.com/jmosbech/StickyTableHeaders/blob/0.1.11/js/jquery.stickytableheaders.js" %}*/
 
-{# Can't use official version because of bugs that are not getting fixed. Issue buffer quite big, pull request buffer not being processed
+/*{# Can't use official version because of bugs that are not getting fixed. Issue buffer quite big, pull request buffer not being processed
 {% component "https://github.com/leafo/sticky-kit/blob/v1.0.4/jquery.sticky-kit.js" %}
-#}
-{% script %}
+#}*/
+/*{% script %}*/
 /**
 This code is based on
 Sticky-kit v1.0.4 | WTFPL | Leaf Corcoran 2014 | http://leafo.net
 
 Modifications:
 - added optional width_calculator callback
-
+- fixed consecutive detach/attach might destroy the sticked element
  */
 
 (function() {
@@ -42,7 +40,7 @@ Modifications:
       sticky_class = "is_stuck";
     }
     _fn = function(elm, padding_bottom, parent_top, parent_height, top, height, el_float) {
-      var bottomed, detach, fixed, last_pos, offset, parent, recalc, recalc_and_tick, spacer, tick;
+      var bottomed, detach, fixed, enabled, last_pos, offset, parent, recalc, recalc_and_tick, spacer, tick;
       if (elm.data("sticky_kit")) {
         return;
       }
@@ -56,6 +54,7 @@ Modifications:
       }
       fixed = false;
       bottomed = false;
+      enabled = true;
       spacer = $("<div />");
       spacer.css('position', elm.css('position'));
       recalc = function() {
@@ -172,8 +171,10 @@ Modifications:
         }
       };
       recalc_and_tick = function() {
-        recalc();
-        return tick();
+        if (enabled) {
+          recalc();
+          return tick();
+        }
       };
       detach = function() {
         win.off("scroll", tick);
@@ -187,6 +188,7 @@ Modifications:
           width: ""   
         });
         parent.position("position", "");
+        enabled = false;
         if (fixed) {
           elm.insertAfter(spacer).removeClass(sticky_class);
           return spacer.remove();
@@ -207,4 +209,4 @@ Modifications:
   };
 
 }).call(this);
-{% endscript %}
+/*{% endscript %}*/

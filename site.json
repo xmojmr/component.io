@@ -1,6 +1,6 @@
 {
   "site.properties": {
-    "build": 828,
+    "build": 899,
     "langs": [
       {
         "lang": "en",
@@ -10,5 +10,8 @@
         "decimalSeparator": "."
       }
     ]
+  },
+  "scripts": {
+    "postbuild": "copy publish\\index.html index.html"
   }
 }

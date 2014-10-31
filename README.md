@@ -1,7 +1,7 @@
 ﻿component.io
 ============
 
-This is search tool for modular JavaScript [component](https://github.com/component/guide) framework. The component framework was invented by [TJ Holowaychuk](https://github.com/visionmedia)
+This is search tool for modular JavaScript [component](https://github.com/component/guide) framework. The component framework was invented by [TJ Holowaychuk](https://github.com/tj)
 
 I have created the search tool because I was not able to find anything useful with the official ```http://component.io``` search tool
 
@@ -17,7 +17,7 @@ You can use
 
 Original design was inspired by [Nipster](https://github.com/eirikb/nipster), modified to work with [Component Crawler](https://github.com/component/crawler.js) as data source.
 
-### Current Status (2014-07-03)
+### Current Status (2014-10-31)
 - Maturity
  - (+) no serious known bugs on modern desktop browsers
  - (+) stable bookmarkable url API
@@ -52,7 +52,6 @@ Original design was inspired by [Nipster](https://github.com/eirikb/nipster), mo
 - LearnBoost for [Stylus](https://github.com/LearnBoost/stylus)
 - Mozilla for [Nunjucks](https://github.com/mozilla/nunjucks)
 - Ryan McGeary for [timeago](http://timeago.yarp.com/)
-- Tan Nhu for [JSFace OOP library](https://github.com/tnhu/jsface)
 - TJ Holowaychuk for [superagent](https://github.com/visionmedia/superagent)
 
 ### Internal API
@@ -65,6 +64,8 @@ Returns component crawler.js JSON dataset as described in <https://github.com/co
 Payload ignored. Triggers cache update of the crawler.json dataset from the <http://component-crawler.herokuapp.com/> server
 
 ### Changelog
+- Release 1.0.2
+ - code moved from vanilla JavaScript to TypeScript
 - Release 1.0.1
  - bugfixes and small usability improvements 
 - Release 1.0.0
