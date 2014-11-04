@@ -3,26 +3,29 @@
 
 This is search tool for modular JavaScript [component](https://github.com/component/guide) framework. The component framework was invented by [TJ Holowaychuk](https://github.com/tj)
 
-I have created the search tool because I was not able to find anything useful with the official ```http://component.io``` search tool
+I have created the search tool because I was not able to find anything useful with the official ```http://component.github.io``` search tool
 
 My version of the search tool is available online at <http://component.xmojmr.cz/> under [WTFPL](http://en.wikipedia.org/wiki/WTFPL) license
 
 You can use
 
-- ```multi-column``` ```sorting``` by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks
-- ```full-text search``` in description, tags, author name, component name
-- ```tag =``` cloud filter, multiple selected tags allow for narrowing down the search
-- ```author =``` cloud filter, authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors
-- Each query is represented by ```bookmarkable url```
+- ```multi-column``` ```sorting``` (1) by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks
+- ```full-text search``` (2) in description, tags, author name, component name
+- ```tag =``` cloud filter (3), multiple selected tags allow for narrowing down the search
+- ```author =``` cloud filter (4), authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors
+- Each query is represented by ```bookmarkable url``` (5)
+
+![Screenshot 1](docs/Screenshot1_annotated.png "Screenshot 1")
 
 Original design was inspired by [Nipster](https://github.com/eirikb/nipster), modified to work with [Component Crawler](https://github.com/component/crawler.js) as data source.
 
-### Current Status (2014-10-31)
+### Current Status (2014-11-04)
 - Maturity
  - (+) no serious known bugs on modern desktop browsers
  - (+) stable bookmarkable url API
  - (+) usable (full text search, tag search, author search..)
  - (-) slow and not reliable on low-end mobile devices
+ - (-) slow when responding to screen or element resize events
 - Details (+)
  - Display of crawler.js database using searchable sortable jQuery DataTables works.
  - Columns author, component and issues are clickable.
@@ -64,6 +67,8 @@ Returns component crawler.js JSON dataset as described in <https://github.com/co
 Payload ignored. Triggers cache update of the crawler.json dataset from the <http://component-crawler.herokuapp.com/> server
 
 ### Changelog
+- Release 1.0.3
+ - bugfixes
 - Release 1.0.2
  - code moved from vanilla JavaScript to TypeScript
 - Release 1.0.1

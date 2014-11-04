@@ -128,7 +128,7 @@ class Application {
   }
 
   private getRecommendedTableLayoutId(): TableLayoutId {
-    if ($(document).width() < $(this._tableId).data('small-table-size'))
+    if (this.sticky.getDocumentWidth() < $(this._tableId).data('small-table-size'))
       return TableLayoutId.SMALL;
     else
       return TableLayoutId.OPTIMAL;
@@ -282,7 +282,7 @@ class Application {
           'searchable': false
         }
       ],
-      'order': this.DEFAULT_ORDER,
+      'order': this.DEFAULT_ORDER.splice(0) /* pass a mutable copy of the DEFAULT_ORDER */,
       rowCallback: (tr: Element, data: any[]) => {
         var $r = $(tr);
 
@@ -443,6 +443,7 @@ class Application {
   }
 
   private _layoutUpdatedNeeded = false;
+  private _lastSavedLayoutOrder: string = null;
 
   layoutChanged(): void {
     this._layoutUpdatedNeeded = true;
@@ -548,6 +549,13 @@ class Application {
         return;
       }
 
+      // Automatically trigger layout update when sorting headers change. Due to
+      // sorting header change the header's height may change as well and layout needs
+      // to be updated, fix for https://github.com/xmojmr/component.io/issues/12
+      if (this._lastSavedLayoutOrder != null && this._lastSavedLayoutOrder != orderParam)
+        this.layoutChanged();
+      this._lastSavedLayoutOrder = orderParam;
+    
       if (!HashFragment.equals(window.location.hash, hash)) {
         window.location.hash = HashFragment.normalize(hash);
         // TODO: would that make any sense?
@@ -574,7 +582,6 @@ class Application {
     this.tagControllerClick(false);
 
     this.saveState();
-
     this.layoutChanged();
 
     // filter the data table
@@ -590,7 +597,6 @@ class Application {
     this.avatarControllerClick(false);
 
     this.saveState();
-
     this.layoutChanged();
 
     // filter the data table
@@ -643,9 +649,7 @@ class Application {
         }
 
         // TODO: text displayed to user in the meaining of "any value matches"
-        var ANY_VALUE_TEXT = '∀';
-
-        var ANY_VALUE = '<span class="any">' + ANY_VALUE_TEXT + '</span>';
+        var ANY_VALUE = '<span class="any">∀</span>';
 
         this.tags = new Tags([0.8, 2.5] /* TUNE: font size range */, ANY_VALUE);
 
@@ -661,6 +665,8 @@ class Application {
           return;
         }
 
+        this.sticky = new StickyController(this._tableId);
+        
         this.currentTableLayoutId = this.getRecommendedTableLayoutId();
 
         this.avatars.useImages(this.getUseAvatarImages(this.currentTableLayoutId));
@@ -687,8 +693,6 @@ class Application {
         // hide tag clould
         $("#tags").toggle();
         $("#avatars").toggle();
-
-        this.sticky = new StickyController(this._tableId);
 
         // On touch devices (e.g. Opera Mobile 12 on Android) all the sticky stuff is
         // very unreliable calculating wrong positions etc. I'll disable sticking completely
@@ -739,8 +743,8 @@ class Application {
 
         // Respond to page-length changes
         $(this._tableId).on('length.dt', () => {
-          this.layoutChanged();
           this.saveState();
+          this.layoutChanged();
         });
 
         // Respond to page-index changes

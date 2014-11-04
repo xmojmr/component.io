@@ -29,7 +29,7 @@ class StickyController {
   constructor(tableId: string) {
     this._fixedParts = 0;
     this._pageFilterOffset = 0;
-    this._isEnabled = true;
+    this._isEnabled = false;
     this._tableId = tableId;
     $(window).scroll(() => this._windowScrollChanged());
   }
@@ -50,6 +50,10 @@ class StickyController {
     return parseInt($("#content").css('paddingLeft'));
   }
 
+  public getDocumentWidth(): number {
+    return this._getPageFilterWidth(null);
+  }
+
   private _getPageFilterWidth(element: JQuery): number {
     return $('#content').outerWidth();
   }
@@ -59,6 +63,9 @@ class StickyController {
   }
 
   private _windowScrollChanged(): void {
+    if (!this._isEnabled)
+      return;
+
     if (this._isFixed(PartId.PAGE_FILTER)) {
       // Let the interior of the filter row respond to horizontal window scrollbar changes
       $('#fixed-scroll-header .scroll-header').css({
@@ -69,6 +76,18 @@ class StickyController {
 
   private _isFixed(partId: PartId): boolean {
     return (this._fixedParts & partId) != 0;
+  }
+
+  private _synchronizeFixedTableHeaderCellStyles() {
+    var $sourceRow = $(this._tableId + ' thead.tableFloatingHeaderOriginal tr th');
+    var $targetRow = $(this._tableId + ' thead.tableFloatingHeader tr th');
+    var targetColumns: Element[] = [];
+    $targetRow.each(function(columnIndex, targetColumn) {
+      targetColumns.push(targetColumn);
+    });
+    $sourceRow.each(function(columnIndex, sourceColumn) {
+      $(targetColumns[columnIndex]).attr('class', $(sourceColumn).attr('class')); 
+    });
   }
 
   private _isActive(partId: PartId): boolean {
@@ -184,6 +203,7 @@ class StickyController {
       if (this._isFixed(partId)) {
         switch (partId) {
           case PartId.TABLE_HEADER:
+            this._synchronizeFixedTableHeaderCellStyles();
             $(window).trigger('resize.stickyTableHeaders');
             break;
 
