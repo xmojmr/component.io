@@ -9,11 +9,11 @@ My version of the search tool is available online at <http://component.xmojmr.cz
 
 You can use
 
-- ```multi-column``` ```sorting``` (1) by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks
-- ```full-text search``` (2) in description, tags, author name, component name
-- ```tag =``` cloud filter (3), multiple selected tags allow for narrowing down the search
-- ```author =``` cloud filter (4), authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors
-- Each query is represented by ```bookmarkable url``` (5)
+1. ```multi-column``` ```sorting``` by author, component, number of stars GitHub users assigned to it, age in days, number of open issues, freshness in days, version number, number of forks
+2. ```full-text search``` in description, tags, author name, component name
+3. ```tag =``` cloud filter, multiple selected tags allow for narrowing down the search
+4. ```author =``` cloud filter, authors are up-weighted by number of projects, number of stars and down-weighted by number of open issues. Multiple selected authors allow for filtering a group of popular vendors
+5. Each query is represented by ```bookmarkable url```
 
 ![Screenshot 1](docs/Screenshot1_annotated.png "Screenshot 1")
 
