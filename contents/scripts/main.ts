@@ -635,8 +635,7 @@ class Application {
   }
 
   main(): void {
-
-  require("superagent")
+    require("superagent")
       .get('/api/v1/crawler.json')
       .withCredentials()
       .on('error', (res: any) => {

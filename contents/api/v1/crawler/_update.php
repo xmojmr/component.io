@@ -355,7 +355,13 @@ try
         $crawler->licenses = $licenseDictionary->toArray();
         */
         
-        if (file_put_contents($targetFile, json_encode($crawler /* TODO: DEBUG: JSON_PRETTY_PRINT */)) === FALSE)
+        if (count($crawler->components) == 0 || count($crawler->users) == 0)
+        {
+            // Something went wrong, e.g. the crawler's storage is offline like in
+            // https://github.com/componentjs/crawler.js/issues/7
+            $ok = FALSE;
+        }
+        else if (file_put_contents($targetFile, json_encode($crawler /* TODO: DEBUG: JSON_PRETTY_PRINT */)) === FALSE)
         {
             $ok = FALSE;
         }

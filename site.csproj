@@ -1,124 +1,115 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{EF258B73-BB7A-47A6-9DE7-13B2EAA0B9E5}</ProjectGuid>
-    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
-    <OutputType>Library</OutputType>
-    <OutputPath>build\</OutputPath>
-    <IntermediateOutputPath>build\temp\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>build\temp\</BaseIntermediateOutputPath>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
-    <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
-    <IISExpressUseClassicPipelineMode />
-  </PropertyGroup>
-  <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RootNamespace>TypeScriptHTMLApp1</RootNamespace>
-  </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
-        <WebProjectProperties>
-          <UseIIS>True</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>49278</DevelopmentServerPort>
-          <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:49278/</IISUrl>
-          <NTLMAuthentication>False</NTLMAuthentication>
-          <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
-          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
-        </WebProjectProperties>
-      </FlavorProperties>
-    </VisualStudio>
-  </ProjectExtensions>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <OutputPath>build\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>false</TypeScriptSourceMap>
-  </PropertyGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <None Include="contents\index.html" />
-    <None Include="contents\styles\normalButtons.styl" />
-    <None Include="contents\styles\normalFont.styl" />
-    <None Include="contents\styles\roundButtons.styl" />
-    <None Include="contents\styles\smallFont.styl" />
-    <None Include="contents\styles\smrk.styl" />
-    <None Include="contents\styles\style.styl" />
-    <None Include="site.json" />
-    <TypeScriptCompile Include="contents\scripts\typings\main.d.ts" />
-    <TypeScriptCompile Include="contents\scripts\main.ts" />
-    <None Include="contents\scripts\modal.js" />
-    <None Include="contents\scripts\textWidth.js" />
-    <None Include="contents\resources\close_window-26.png" />
-    <None Include="contents\resources\forked.png" />
-    <None Include="contents\resources\GitHub-Mark-32px.png" />
-    <None Include="contents\resources\sort_asc.png" />
-    <None Include="contents\resources\sort_desc.png" />
-    <None Include="contents\api\v1\.htaccess" />
-    <None Include="contents\api\v1\crawler\_update.php" />
-    <None Include="contents\api\v1\crawler\.htaccess" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="contents\.htaccess" />
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="contents\scripts\Cloud\Avatars.ts" />
-    <TypeScriptCompile Include="contents\scripts\Cloud\Cloud.ts" />
-    <TypeScriptCompile Include="contents\scripts\HashApi\HashFragment.ts" />
-    <TypeScriptCompile Include="contents\scripts\typings\IDataTableEx.d.ts" />
-    <TypeScriptCompile Include="contents\scripts\typings\IHashFragment.d.ts" />
-    <TypeScriptCompile Include="contents\scripts\HashApi\OrderHashFragment.ts" />
-    <TypeScriptCompile Include="contents\scripts\HashApi\PageIndexHashFragment.ts" />
-    <TypeScriptCompile Include="contents\scripts\HashApi\PageLengthHashFragment.ts" />
-    <TypeScriptCompile Include="contents\scripts\PartId.ts" />
-    <TypeScriptCompile Include="contents\scripts\Cloud\Range.ts" />
-    <None Include="templates\dataTables.js.template" />
-    <None Include="templates\layout.html.template" />
-    <None Include="templates\sticky.js.template" />
-    <None Include="templates\superagent.js.template" />
-    <None Include="templates\timeago.js.template" />
-    <None Include="templates\vendor\borisyankov\DefinitelyTyped\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="contents\scripts\StickyController.ts" />
-    <TypeScriptCompile Include="contents\scripts\Cloud\Tags.ts" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>amd</TypeScriptModuleKind>
-    <TypeScriptTarget>ES3</TypeScriptTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>amd</TypeScriptModuleKind>
-    <TypeScriptTarget>ES3</TypeScriptTarget>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
-  <PropertyGroup>
-    <PostBuildEvent>if "$(ConfigurationName)" == "Release" (
-  cd "$(ProjectDir)"
-  call site build minify
-  type site.log.txt
-)</PostBuildEvent>
-  </PropertyGroup>
+    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <ProjectGuid>{EF258B73-BB7A-47A6-9DE7-13B2EAA0B9E5}</ProjectGuid>
+        <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+        <OutputType>Library</OutputType>
+        <OutputPath>.temp\o\</OutputPath>
+        <IntermediateOutputPath>.temp\i\</IntermediateOutputPath>
+        <BaseIntermediateOutputPath>.temp\i\</BaseIntermediateOutputPath>
+        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
+        <UseIISExpress>true</UseIISExpress>
+        <IISExpressSSLPort/>
+        <IISExpressAnonymousAuthentication/>
+        <IISExpressWindowsAuthentication/>
+        <IISExpressUseClassicPipelineMode/>
+    </PropertyGroup>
+    <PropertyGroup>
+        <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>TypeScriptHTMLApp1</RootNamespace>
+    </PropertyGroup>
+    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets"/>
+    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')"/>
+    <ProjectExtensions>
+        <VisualStudio>
+            <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+                <WebProjectProperties>
+                    <UseIIS>True</UseIIS>
+                    <AutoAssignPort>True</AutoAssignPort>
+                    <DevelopmentServerPort>49278</DevelopmentServerPort>
+                    <DevelopmentServerVPath>/</DevelopmentServerVPath>
+                    <IISUrl>http://localhost:49278/</IISUrl>
+                    <NTLMAuthentication>False</NTLMAuthentication>
+                    <UseCustomServer>False</UseCustomServer>
+                    <CustomServerUrl/>
+                    <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+                </WebProjectProperties>
+            </FlavorProperties>
+        </VisualStudio>
+    </ProjectExtensions>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+        <TypeScriptSourceMap>true</TypeScriptSourceMap>
+        <OutputPath>.temp\o\</OutputPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+        <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="contents\api\v1\crawler\.htaccess"/>
+        <None Include="contents\api\v1\crawler\_update.php"/>
+        <None Include="contents\api\v1\.htaccess"/>
+        <None Include="contents\api\v1\crawler.json"/>
+        <None Include="contents\resources\close_window-26.png"/>
+        <None Include="contents\resources\forked.png"/>
+        <None Include="contents\resources\GitHub-Mark-32px.png"/>
+        <None Include="contents\resources\sort_asc.png"/>
+        <None Include="contents\resources\sort_desc.png"/>
+        <TypeScriptCompile Include="contents\scripts\Cloud\Avatars.ts"/>
+        <TypeScriptCompile Include="contents\scripts\Cloud\Cloud.ts"/>
+        <TypeScriptCompile Include="contents\scripts\Cloud\Range.ts"/>
+        <TypeScriptCompile Include="contents\scripts\Cloud\Tags.ts"/>
+        <TypeScriptCompile Include="contents\scripts\HashApi\HashFragment.ts"/>
+        <TypeScriptCompile Include="contents\scripts\HashApi\OrderHashFragment.ts"/>
+        <TypeScriptCompile Include="contents\scripts\HashApi\PageIndexHashFragment.ts"/>
+        <TypeScriptCompile Include="contents\scripts\HashApi\PageLengthHashFragment.ts"/>
+        <TypeScriptCompile Include="contents\scripts\typings\IDataTableEx.d.ts"/>
+        <TypeScriptCompile Include="contents\scripts\typings\IHashFragment.d.ts"/>
+        <TypeScriptCompile Include="contents\scripts\typings\main.d.ts"/>
+        <TypeScriptCompile Include="contents\scripts\main.ts"/>
+        <None Include="contents\scripts\main.ts.yaml"/>
+        <None Include="contents\scripts\modal.js"/>
+        <TypeScriptCompile Include="contents\scripts\PartId.ts"/>
+        <TypeScriptCompile Include="contents\scripts\StickyController.ts"/>
+        <None Include="contents\scripts\textWidth.js"/>
+        <None Include="contents\styles\normalButtons.styl"/>
+        <None Include="contents\styles\normalFont.styl"/>
+        <None Include="contents\styles\roundButtons.styl"/>
+        <None Include="contents\styles\smallFont.styl"/>
+        <None Include="contents\styles\smrk.styl"/>
+        <None Include="contents\styles\style.styl"/>
+        <None Include="contents\.htaccess"/>
+        <None Include="contents\i.png"/>
+        <None Include="contents\index.html"/>
+        <TypeScriptCompile Include="templates\vendor\borisyankov\DefinitelyTyped\jquery\jquery.d.ts"/>
+        <None Include="templates\dataTables.js.template"/>
+        <None Include="templates\layout.html.template"/>
+        <None Include="templates\sticky.js.template"/>
+        <None Include="templates\superagent.js.template"/>
+        <None Include="templates\timeago.js.template"/>
+        <None Include="README.md"/>
+        <None Include="site.json"/>
+    </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+        <TypeScriptModuleKind>amd</TypeScriptModuleKind>
+        <TypeScriptTarget>ES3</TypeScriptTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+        <TypeScriptModuleKind>amd</TypeScriptModuleKind>
+        <TypeScriptTarget>ES3</TypeScriptTarget>
+    </PropertyGroup>
+    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')"/>
+    <PropertyGroup>
+        <PostBuildEvent>if "$(ConfigurationName)" == "Release" site --cwd "$(ProjectDir)." --stderr build minify</PostBuildEvent>
+    </PropertyGroup>
 </Project>
